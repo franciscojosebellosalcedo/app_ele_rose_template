@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { IResponseHttp, IUserModel } from '../models/models'
 import { CategoryService } from '../modules/vending/category/category.service'
 import { setAllCategories } from '../features/category/categorySlice'
+import "../config"
 
 type Props={
   children: React.ReactNode
@@ -23,7 +24,7 @@ const Layaut: FC<Props> = ({children}) => {
         const response: IResponseHttp = await categoryService.getCategories(user.accessToken);
         return response.data
       } catch (error) {
-        throw error
+        return []
       }
     }
   }

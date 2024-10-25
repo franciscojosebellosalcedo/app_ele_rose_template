@@ -147,7 +147,9 @@ const TableCategory = () => {
       }
 
     } catch (error : any) {
-      toast.error(error.message);
+
+      dispatch(setAllCategoriesFound([]));
+
     }
 
     setIsLoader(false);
@@ -228,7 +230,7 @@ const TableCategory = () => {
           />
 
           <CTable responsive="md" caption="top">
-            <CTableCaption>{`Sobre ${categoriesList.filter((cate) => cate.status === true).length} categorías activas`}</CTableCaption>
+            <CTableCaption>{`Sobre ${categoriesList?.length === undefined ? 0 : categoriesList.filter((cate) => cate.status === true).length} categorías activas`}</CTableCaption>
             <CTableHead color="primary">
               <CTableRow>
                 <CTableHeaderCell>#</CTableHeaderCell>
