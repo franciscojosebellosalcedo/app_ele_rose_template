@@ -1,9 +1,11 @@
-import React from 'react'
-import { AppContent, AppSidebar, AppFooter, AppHeader } from '../components/index'
+import { AppContent, AppHeader, AppSidebar } from '../components/index'
+import Layaut from './Layaut'
 
 const DefaultLayout = () => {
+
   return (
-    <div>
+    <Layaut>
+      <div>
       <AppSidebar />
       <div className="wrapper d-flex flex-column min-vh-100">
         <AppHeader />
@@ -12,6 +14,7 @@ const DefaultLayout = () => {
         </div>
       </div>
     </div>
+    </Layaut>
   )
 }
 

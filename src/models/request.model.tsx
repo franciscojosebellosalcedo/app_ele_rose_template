@@ -1,11 +1,11 @@
+import { URL_BASE } from "../utils";
 
 export class FecthRequestModel {
   public static instance: FecthRequestModel;
   private url:string;
 
   constructor() {
-      this.url = process.env.REACT_APP_API_URL as string;
-      localStorage.getItem(process.env.REACT_APP_KEY_SET_ITEM_USER_LOCAL_STORAGE as string);
+      this.url = URL_BASE;
   }
 
   public static getInstance() {
@@ -35,7 +35,7 @@ export class FecthRequestModel {
       let resultOptions: Record<string, unknown> = { 'headers': { 'Content-Type': 'application/json' } };
       if (haveFormData) resultOptions = { 'headers': {} }
       if (token) {
-        (resultOptions['headers'] as any)['x-access-token'] = `bearer ${token}`
+        (resultOptions['headers'] as any)['access-x'] = `bearer ${token}`
       }
       if (token) {
         (resultOptions['headers'] as any)['folder'] = folder

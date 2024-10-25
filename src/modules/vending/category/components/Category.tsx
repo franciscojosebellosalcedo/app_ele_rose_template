@@ -1,21 +1,11 @@
-import {
-  CCardHeader,
-  CCol,
-  CRow
-} from '@coreui/react'
+import ContainerContent from '../../../../helpers/ContainerContent'
+import TableCategory from './TableCategory'
 
 const Category = () => {
   return (
-    <CRow>
-      <CCol xs={12}>
-
-          <CCardHeader>
-            <strong>Categorías</strong>
-          </CCardHeader>
-
-
-      </CCol>
-    </CRow>
+    <ContainerContent title='Categorías'>
+      <TableCategory/>
+    </ContainerContent>
   )
 }
 
