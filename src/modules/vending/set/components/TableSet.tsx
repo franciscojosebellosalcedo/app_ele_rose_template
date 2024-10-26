@@ -226,22 +226,21 @@ const TableSet = () => {
             isOpenModal={isOpenModalSet}
           />
 
-          <CTable responsive="md" caption="top">
-            <CTableCaption>{`Sobre ${setsList?.length === undefined ? 0 : setsList.filter((cate) => cate.status === true).length} colecciones activas`}</CTableCaption>
-            <CTableHead color="primary">
-              <CTableRow>
-                <CTableHeaderCell>#</CTableHeaderCell>
+            <h6 className="mt-4 mb-3">{`Sobre ${setsList?.length === undefined ? 0 : setsList.filter((set) => set.status === true).length} colecciones activas`}</h6>
+
+            <div className="table-responsive" style={{ position: 'relative' }}>
+              <table className="table align-middle gs-0 gy-4">
+              <CTableHead  color="primary">
+              <CTableRow >
                 <CTableHeaderCell>Nombre</CTableHeaderCell>
                 <CTableHeaderCell>Status</CTableHeaderCell>
-                <CTableHeaderCell>Imagen</CTableHeaderCell>
                 <CTableHeaderCell></CTableHeaderCell>
               </CTableRow>
             </CTableHead>
-            <CTableBody>
 
-              {
+            {
                 setsFound && setsFound.length > 0 ?
-                  <>
+                  <tbody>
                     {
                       setsFound.map((cate: ISetModel, index: number) =>{
                         return <SetItem
@@ -253,11 +252,11 @@ const TableSet = () => {
                         />
                       } )
                     }
-                  </>
+                  </tbody>
                 :
 
                 setsList && setsList.length > 0 ?
-                  <>
+                  <tbody>
                     {
                       setsList.map((cate: ISetModel, index: number) =>{
                         return <SetItem
@@ -269,12 +268,11 @@ const TableSet = () => {
                         />
                       } )
                     }
-                  </> : <></>
+                  </tbody> : <></>
 
               }
-
-            </CTableBody>
-          </CTable>
+            </table>
+            </div>
 
           <Pagination
             currentPage={currentPage}

@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ContainerContent from '../../../../helpers/ContainerContent';
 import { colorRedInfoInput, convertFileToBase64, getOptionsInputSelect, handleSubmitFileUploadcare } from '../../../../utils';
-import { ICategoryModel, IProduct, IProductImagen, IProductModel, IResponseHttp, ISetModel, IUserModel } from '../../../../models/models';
+import { ICategoryModel, IDataInputSelect, IProduct, IProductImagen, IProductModel, IResponseHttp, ISetModel, IUserModel } from '../../../../models/models';
 import { useSelector } from 'react-redux';
 import { useFormik } from 'formik';
 import * as Yup from "yup";
@@ -79,6 +79,10 @@ const FormProduct = () => {
   const user : IUserModel = useSelector((state: any) => state.user.data);
 
   const dispatch = useDispatch();
+
+  const [optionsSets , setOptionsSets] = useState<any[]>([]);
+
+  const [optionsCategory , setOptionsCategories] = useState<any[]>([]);
 
   // hand ler list imagen
   const handlerListImagen = async ( files: any  )=>{
@@ -209,6 +213,21 @@ const FormProduct = () => {
 
   }
 
+  useEffect(()=>{
+
+    const optionsSets = getOptionsInputSelect(sets?.filter((set)=> set.status === true) , "_id", ["name"]);
+    setOptionsSets(optionsSets);
+
+  },[sets]);
+
+  useEffect(()=>{
+
+    const optionscategories = getOptionsInputSelect(categories?.filter((cate)=> cate.status === true) , "_id", ["name"]);
+
+    setOptionsCategories(optionscategories);
+
+  },[categories]);
+
   return (
     <ContainerContent title="Nuevo producto">
       <CForm onSubmit={formik.handleSubmit}>
@@ -320,7 +339,7 @@ const FormProduct = () => {
                 defaultValue={formik.values.set}
                 options={[
                   { label: "Seleccionar", value: ""},
-                  ...getOptionsInputSelect(sets?.filter((set)=> set.status === true) , "_id", ["name"])
+                  ...optionsSets
                 ]}
                 />
           </CCol>
@@ -340,7 +359,7 @@ const FormProduct = () => {
                 )}
                 options={[
                   { label: "Seleccionar", value: ""},
-                  ...getOptionsInputSelect(categories.filter((cate)=> cate.status === true) , "_id", ["name"])
+                  ...optionsCategory
                 ]}
               />
               {formik.touched.category && formik.errors.category && (

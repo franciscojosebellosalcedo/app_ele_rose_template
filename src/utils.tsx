@@ -24,6 +24,16 @@ export const convertFileToBase64 = async (file: any) => {
   return await promise
 }
 
+// format price
+export const formatPrice = (price: number) => {
+
+  let formattedPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+  formattedPrice = formattedPrice.replace(/,/g, '.');
+
+  return formattedPrice;
+}
+
 
 // upload files to uploadcare
 export const handleSubmitFileUploadcare = async (imagenSelected: any) => {
@@ -52,27 +62,29 @@ export const getOptionsInputSelect = <T,> (list: T[], propValue: keyof T , propL
 
   const options : IDataInputSelect[] = [];
 
-  for (let index = 0; index < list.length; index++) {
+  if(list && list.length > 0){
+    for (let index = 0; index < list.length; index++) {
 
-    const item: any = list[index];
+      const item: any = list[index];
 
-    let label : any = "";
+      let label : any = "";
 
-    for (let j = 0; j < propLabel.length; j++) {
+      for (let j = 0; j < propLabel.length; j++) {
 
-      const prop: any = propLabel[j];
+        const prop: any = propLabel[j];
 
-      label += `${item[prop]} `;
+        label += `${item[prop]} `;
+
+      }
+
+      const data : IDataInputSelect = {
+        label: label,
+        value: item[propValue]
+      }
+
+      options.push(data);
 
     }
-
-    const data : IDataInputSelect = {
-      label: label,
-      value: item[propValue]
-    }
-
-    options.push(data);
-
   }
 
   return options;

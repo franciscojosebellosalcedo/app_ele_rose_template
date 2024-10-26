@@ -93,16 +93,34 @@ const SetItem : FC<Props> = ({
   }
 
   return (
-    <CTableRow key={set._id}>
-      <CTableHeaderCell>{index + 1}</CTableHeaderCell>
-      <CTableDataCell>{set.name}</CTableDataCell>
-      <CTableDataCell>
-        <span className={`text-${set.status ? "primary": "danger"}`}>{set.status ? "Activo": "Inactivo"}</span>
-      </CTableDataCell>
-      <CTableDataCell>
-        <CImage rounded width={50} height={50} src={set.imagen} />
-      </CTableDataCell>
-      <CTableDataCell>
+    <tr key={set._id}>
+     <td>
+      <div className='d-flex align-items-center w-300px'>
+        <div className=' me-3'>
+            <CImage
+            rounded
+            width={50}
+            height={50}
+              src={set.imagen}
+            />
+        </div>
+        <div className='d-flex align-items-center'>
+          <div className='d-flex justify-content-start flex-column'>
+            <div  className=' text-hover-primary mb-1 fs-6'>
+            {
+              set.name
+            }
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+
+    <td>
+      <span className={`text-${set.status ? "primary": "danger"}`}>{set.status ? "Activo": "Inactivo"}</span>
+    </td>
+
+      <td>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
           <CButton onClick={(e)=>changeStatus(e)} style={{ border: '.3px solid #007bff' }}>
             <CIcon
@@ -120,8 +138,8 @@ const SetItem : FC<Props> = ({
             <CIcon size="lg" icon={cilPencil} style={{ cursor: 'pointer' }} title="Editar" />
           </CButton>
         </div>
-      </CTableDataCell>
-    </CTableRow>
+      </td>
+    </tr>
   )
 }
 

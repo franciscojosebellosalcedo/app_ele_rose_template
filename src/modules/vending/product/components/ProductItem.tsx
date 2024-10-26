@@ -1,9 +1,10 @@
 import React, { FC } from 'react'
 import { ICategoryModel, IProductModel, ISetModel } from '../../../../models/models'
-import { CButton, CImage, CTableDataCell, CTableHeaderCell, CTableRow } from '@coreui/react'
+import { CButton, CImage, CTableDataCell, CTableRow } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilPencil, cilSwapHorizontal } from '@coreui/icons'
 import { useSelector } from 'react-redux'
+import { formatPrice } from '../../../../utils'
 
 type Props ={
   product: IProductModel
@@ -29,28 +30,54 @@ const ProductItem : FC<Props> = ({
   }
 
   return (
-    <CTableRow key={product._id}>
-    <CTableHeaderCell>{index + 1}</CTableHeaderCell>
+    <tr key={product._id}>
 
-    <CTableDataCell>{product.name}</CTableDataCell>
+    <td>
+      <div className='d-flex align-items-center w-300px'>
+        <div className=' me-3'>
+            <CImage
+            rounded
+            width={50}
+            height={50}
+              src={product.listImagen && product.listImagen.length >0 ? product.listImagen[0].imagen : ""}
+            />
+        </div>
+        <div className='d-flex align-items-center'>
+          <div className='d-flex justify-content-start flex-column'>
+            <div  className=' text-hover-primary mb-1 fs-6'>
+            {
+              product.name
+            }
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
 
-    <CTableDataCell>{product.set ? getSetById(product.set)?.name: "No aplica"}</CTableDataCell>
+    <td>
+        <div className=' text-hover-primary d-block mb-1 fs-6'>
+        {product.set ? getSetById(product.set)?.name: "No"}
+        </div>
+    </td>
 
-    <CTableDataCell>{getCategoryById(product.category)?.name}</CTableDataCell>
 
-    <CTableDataCell>{product.amount}</CTableDataCell>
+    <td>
+        <div className=' text-hover-primary d-block mb-1 fs-6'>
+          {getCategoryById(product.category)?.name}
+        </div>
+    </td>
 
-    <CTableDataCell>${product.realPrice}</CTableDataCell>
 
-    <CTableDataCell>
-      <CImage rounded width={50} height={50} src={product?.listImagen ? product.listImagen[0].imagen : ""} />
-    </CTableDataCell>
 
-    <CTableDataCell>
+    <td>{product.amount}</td>
+
+    <td>${formatPrice(product.realPrice)}</td>
+
+    <td>
       <span className={`text-${product.status ? "primary": "danger"}`}>{product.status ? "Activo": "Inactivo"}</span>
-    </CTableDataCell>
+    </td>
 
-    <CTableDataCell>
+    <td>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
         <CButton  style={{ border: '.3px solid #007bff' }}>
           <CIcon
@@ -66,8 +93,8 @@ const ProductItem : FC<Props> = ({
           <CIcon size="lg" icon={cilPencil} style={{ cursor: 'pointer' }} title="Editar" />
         </CButton>
       </div>
-    </CTableDataCell>
-  </CTableRow>
+    </td>
+  </tr>
   )
 }
 

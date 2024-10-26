@@ -84,7 +84,7 @@ const Layaut: FC<Props> = ({children}) => {
     } else {
       console.log('not')
     }
-  }, [])
+  }, [user])
   return <>{children}</>
 }
 

@@ -94,16 +94,34 @@ const CategoryItem : FC<Props> = ({
   }
 
   return (
-    <CTableRow key={category._id}>
-      <CTableHeaderCell>{index + 1}</CTableHeaderCell>
-      <CTableDataCell>{category.name}</CTableDataCell>
-      <CTableDataCell>
-        <span className={`text-${category.status ? "primary": "danger"}`}>{category.status ? "Activo": "Inactivo"}</span>
-      </CTableDataCell>
-      <CTableDataCell>
-        <CImage rounded width={50} height={50} src={category.imagen} />
-      </CTableDataCell>
-      <CTableDataCell>
+    <tr key={category._id}>
+      <td>
+      <div className='d-flex align-items-center w-300px'>
+        <div className=' me-3'>
+            <CImage
+            rounded
+            width={50}
+            height={50}
+              src={category.imagen}
+            />
+        </div>
+        <div className='d-flex align-items-center'>
+          <div className='d-flex justify-content-start flex-column'>
+            <div  className=' text-hover-primary mb-1 fs-6'>
+            {
+              category.name
+            }
+            </div>
+          </div>
+        </div>
+      </div>
+    </td>
+
+    <td>
+      <span className={`text-${category.status ? "primary": "danger"}`}>{category.status ? "Activo": "Inactivo"}</span>
+    </td>
+
+      <td>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
           <CButton onClick={(e)=>changeStatus(e)} style={{ border: '.3px solid #007bff' }}>
             <CIcon
@@ -121,8 +139,8 @@ const CategoryItem : FC<Props> = ({
             <CIcon size="lg" icon={cilPencil} style={{ cursor: 'pointer' }} title="Editar" />
           </CButton>
         </div>
-      </CTableDataCell>
-    </CTableRow>
+      </td>
+    </tr>
   )
 }
 
