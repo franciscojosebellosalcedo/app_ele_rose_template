@@ -5,12 +5,16 @@ import { IResponseHttp, IUserModel } from '../models/models'
 import { CategoryService } from '../modules/vending/category/category.service'
 import { setAllCategories } from '../features/category/categorySlice'
 import "../config"
+import { SetService } from '../modules/vending/set/set.service'
+import { setAllSets } from '../features/set/setSlice'
 
 type Props={
   children: React.ReactNode
 }
 
 const categoryService: CategoryService = CategoryService.getInstance();
+
+const setService : SetService = SetService.getInstance();
 
 const Layaut: FC<Props> = ({children}) => {
 
@@ -29,17 +33,30 @@ const Layaut: FC<Props> = ({children}) => {
     }
   }
 
+  const getSets = async () => {
+    if (user?.accessToken) {
+      try {
+        const response: IResponseHttp = await setService.getSets(user.accessToken);
+        return response.data
+      } catch (error) {
+        return []
+      }
+    }
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [
 
-          categories
+          categories, sets
 
-        ] = await Promise.all([ getCategories() ,
+        ] = await Promise.all([ getCategories() , getSets(),
         ])
 
         dispatch(setAllCategories(categories));
+
+        dispatch(setAllSets(sets))
 
       } catch (error) {
         console.log(error)

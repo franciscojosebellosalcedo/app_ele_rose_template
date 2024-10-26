@@ -1,3 +1,4 @@
+
 import { cilPlus } from '@coreui/icons'; // Icono de "+"
 import CIcon from '@coreui/icons-react';
 import {
@@ -16,22 +17,22 @@ import {
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
-import { setAllCategories, setAllCategoriesFound } from '../../../../features/category/categorySlice';
+import { setAllSets, setAllSetsFound } from '../../../../features/set/setSlice';
 import Pagination from '../../../../helpers/Pagination';
 import Search from '../../../../helpers/Search';
-import { ICategoryModel, IDataResponsePagination, IResponseHttp, IUserModel } from '../../../../models/models';
-import { CategoryService } from '../category.service';
-import CategoryItem from './CategoryItem';
-import FormCategory from './FormCategory';
+import { IDataResponsePagination, IResponseHttp, ISetModel, IUserModel } from '../../../../models/models';
+import { SetService } from '../set.service';
+import FormSet from './FormSet';
+import SetItem from './SetItem';
 
-const categoryService : CategoryService = CategoryService.getInstance();
+const setService : SetService = SetService.getInstance();
 
-const TableCategory = () => {
-  const [isOpenModalCategory, setIsOpenModalCategory] = useState<boolean>(false);
+const TableSet = () => {
+  const [isOpenModalSet, setIsOpenModalSet] = useState<boolean>(false);
 
-  const categoriesFound : ICategoryModel[] = useSelector((state: any) => state.category.data.found);
+  const setsFound : ISetModel[] = useSelector((state: any) => state.set.data.found);
 
-  const categoriesList : ICategoryModel[] = useSelector((state: any) => state.category.data.list);
+  const setsList : ISetModel[] = useSelector((state: any) => state.set.data.list);
 
   const user : IUserModel = useSelector((state: any) => state.user.data);
 
@@ -45,31 +46,31 @@ const TableCategory = () => {
 
   const dispatch = useDispatch();
 
-  const [categorySelected , setCategorySelected] = useState<ICategoryModel | null>(null);
+  const [setSelected , setSetSelected] = useState<ISetModel | null>(null);
 
   const [isLoaderGet , setIsLoaderGet] = useState<boolean>(false);
 
-  // handler open modal category
-  const handlerOpenModalCategory = () => {
-    setIsOpenModalCategory(!isOpenModalCategory);
+  // handler open modal set
+  const handlerOpenModalSet = () => {
+    setIsOpenModalSet(!isOpenModalSet);
   }
 
-  const getCategories = async () => {
+  const getSets = async () => {
 
     if (user?.accessToken) {
 
       try {
 
-        const responseHttp : IResponseHttp = await categoryService.getCategories(user.accessToken);
+        const responseHttp : IResponseHttp = await setService.getSets(user.accessToken);
         if(responseHttp.status === 200 && responseHttp.response){
 
-          dispatch(setAllCategories(responseHttp.data));
+          dispatch(setAllSets(responseHttp.data));
 
         }
 
       } catch (error) {
 
-        dispatch(setAllCategories([]));
+        dispatch(setAllSets([]));
 
       }
 
@@ -77,7 +78,7 @@ const TableCategory = () => {
 
   }
 
-  //search categories in the database
+  //search sets in the database
   const search = async (value: string)=>{
 
     setIsLoaderGet(true);
@@ -86,13 +87,13 @@ const TableCategory = () => {
 
       if(user?.accessToken){
 
-        const responseHttp : IResponseHttp = await categoryService.search(value , user.accessToken);
+        const responseHttp : IResponseHttp = await setService.search(value , user.accessToken);
 
         if(responseHttp.status === 200 && responseHttp.response){
 
-          const data : ICategoryModel[] = responseHttp.data;
+          const data : ISetModel[] = responseHttp.data;
 
-          dispatch(setAllCategoriesFound(data));
+          dispatch(setAllSetsFound(data));
 
         }else{
 
@@ -114,21 +115,21 @@ const TableCategory = () => {
   const resetSearch = async ()=>{
     try {
 
-      await paginateCategories(1, itemsPerPage);
+      await paginateSets(1, itemsPerPage);
 
     } catch (error: any) {
       toast.error(error.message);
     }
   }
 
-  //paginated categories
-  const paginateCategories = async (page: number, itemsPerPageOptional?: number)=>{
+  //paginated sets
+  const paginateSets = async (page: number, itemsPerPageOptional?: number)=>{
     setIsLoader(true);
     try {
 
       if(user?.accessToken){
 
-        const responseHttp : IResponseHttp = await categoryService.paginateCategory(page, itemsPerPageOptional ? itemsPerPageOptional : itemsPerPage , user.accessToken);
+        const responseHttp : IResponseHttp = await setService.paginateSet(page, itemsPerPageOptional ? itemsPerPageOptional : itemsPerPage , user.accessToken);
 
         if(responseHttp.status === 200 && responseHttp.response){
 
@@ -137,14 +138,14 @@ const TableCategory = () => {
           setTotalPages(data.totalPages);
           setCurrentPage(data.currentPage);
 
-          dispatch(setAllCategoriesFound(data.registers));
+          dispatch(setAllSetsFound(data.registers));
 
         }
       }
 
     } catch (error : any) {
 
-      dispatch(setAllCategoriesFound([]));
+      dispatch(setAllSetsFound([]));
 
     }
 
@@ -157,13 +158,13 @@ const TableCategory = () => {
 
   useEffect(()=>{
 
-    paginateCategories(currentPage);
+    paginateSets(currentPage);
 
   },[currentPage]);
 
   useEffect(()=>{
 
-    getCategories();
+    getSets();
 
   },[user]);
 
@@ -179,9 +180,9 @@ const TableCategory = () => {
           <div className='d-flex flex-column gap-4 mt-2 flex-sm-row align-items-start'>
             <CRow className="mb-1">
               <CCol className="text-right">
-                <CButton color="primary" onClick={() => handlerOpenModalCategory()}>
+                <CButton color="primary" onClick={() => handlerOpenModalSet()}>
                   <CIcon icon={cilPlus} className="mr-2" />
-                  Nueva categoría
+                  Nueva colección
                 </CButton>
               </CCol>
             </CRow>
@@ -196,7 +197,7 @@ const TableCategory = () => {
                   const value =  parseInt(e.target.value);
 
                   setItemsPerPage(value);
-                  paginateCategories(1, value);
+                  paginateSets(1, value);
 
                 }}
                 defaultValue={itemsPerPage}
@@ -212,21 +213,21 @@ const TableCategory = () => {
               isLoaderGet ={isLoaderGet}
               handlerResetSearch={resetSearch}
               handlerSearch={search}
-              placeholder='Buscar categoría'
+              placeholder='Buscar colección'
             />
 
           </div>
 
-          <FormCategory
-            paginateCategories={paginateCategories}
-            setCategorySelected={setCategorySelected}
-            categorySelected={categorySelected}
-            setIsOpenModalCategory={setIsOpenModalCategory}
-            isOpenModal={isOpenModalCategory}
+          <FormSet
+            paginateSets={paginateSets}
+            setSetSelected={setSetSelected}
+            setSelected={setSelected}
+            setIsOpenModalSet={setIsOpenModalSet}
+            isOpenModal={isOpenModalSet}
           />
 
           <CTable responsive="md" caption="top">
-            <CTableCaption>{`Sobre ${categoriesList?.length === undefined ? 0 : categoriesList.filter((cate) => cate.status === true).length} categorías activas`}</CTableCaption>
+            <CTableCaption>{`Sobre ${setsList?.length === undefined ? 0 : setsList.filter((cate) => cate.status === true).length} colecciones activas`}</CTableCaption>
             <CTableHead color="primary">
               <CTableRow>
                 <CTableHeaderCell>#</CTableHeaderCell>
@@ -239,32 +240,32 @@ const TableCategory = () => {
             <CTableBody>
 
               {
-                categoriesFound && categoriesFound.length > 0 ?
+                setsFound && setsFound.length > 0 ?
                   <>
                     {
-                      categoriesFound.map((cate: ICategoryModel, index: number) =>{
-                        return <CategoryItem
-                        setCategorySelected={setCategorySelected}
-                        setIsOpenModalCategory={setIsOpenModalCategory}
+                      setsFound.map((cate: ISetModel, index: number) =>{
+                        return <SetItem
+                        setSetSelected={setSetSelected}
+                        setIsOpenModalSet={setIsOpenModalSet}
                         key={cate._id}
                         index={index}
-                        category={cate}
+                        set={cate}
                         />
                       } )
                     }
                   </>
                 :
 
-                categoriesList && categoriesList.length > 0 ?
+                setsList && setsList.length > 0 ?
                   <>
                     {
-                      categoriesList.map((cate: ICategoryModel, index: number) =>{
-                        return <CategoryItem
-                        setCategorySelected={setCategorySelected}
-                        setIsOpenModalCategory={setIsOpenModalCategory}
+                      setsList.map((cate: ISetModel, index: number) =>{
+                        return <SetItem
+                        setSetSelected={setSetSelected}
+                        setIsOpenModalSet={setIsOpenModalSet}
                         key={cate._id}
                         index={index}
-                        category={cate}
+                        set={cate}
                         />
                       } )
                     }
@@ -288,4 +289,5 @@ const TableCategory = () => {
   )
 }
 
-export default TableCategory
+export default TableSet;
+

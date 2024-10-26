@@ -80,7 +80,6 @@ const Search : FC<Props> = ({
     <div className="d-flex align-items-center mb-3 mb-sm-0 " style={{ marginRight: '30px' }}>
       <div className="input-group">
         <input
-          autoFocus
           type="search"
           onInput={(e)=>handlerInputSearch(e.currentTarget.value)}
           className="form-control form-control-solid w-250px"

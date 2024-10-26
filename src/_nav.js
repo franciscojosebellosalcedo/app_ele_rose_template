@@ -29,7 +29,7 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Colecciones',
-        to: '/vending/collection',
+        to: '/vending/set',
       },
 
 

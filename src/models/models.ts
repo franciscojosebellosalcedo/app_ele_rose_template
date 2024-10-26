@@ -10,7 +10,18 @@ export interface ICategory{
   imagen: string
   status: number
 }
+export interface ISet{
+  name: string
+  imagen: string
+  status: number
+}
 
+export interface ISetModel{
+  _id: string
+  name: string
+  imagen: string
+  status: boolean
+}
 export interface ICategoryModel{
   _id: string
   name: string
