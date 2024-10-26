@@ -193,7 +193,7 @@ const TableProduct = () => {
                   paginateProducts(1, value);
 
                 }}
-                defaultValue={10}
+                defaultValue={itemsPerPage}
                 options={[
                   { label: '10', value: '10' },
                   { label: '20', value: '20' },
