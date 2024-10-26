@@ -1,8 +1,11 @@
 import { base } from "@uploadcare/upload-client"
 import { isProduction } from "./config";
+import { IDataInputSelect } from "./models/models";
 
 //if content character
 export const regexIsContentCharacter= /\S/;
+
+export const colorRedInfoInput = "#FF6666";
 
 export const URL_BASE = isProduction ? "https://app-ele-rose-back.vercel.app/api/ele-rose/" : "http://localhost:5000/api/ele-rose/";
 
@@ -43,3 +46,35 @@ export const handleSubmitFileUploadcare = async (imagenSelected: any) => {
 
   }
 };
+
+// create options input select
+export const getOptionsInputSelect = <T,> (list: T[], propValue: keyof T , propLabel: Array<keyof T> ) : IDataInputSelect[] =>{
+
+  const options : IDataInputSelect[] = [];
+
+  for (let index = 0; index < list.length; index++) {
+
+    const item: any = list[index];
+
+    let label : any = "";
+
+    for (let j = 0; j < propLabel.length; j++) {
+
+      const prop: any = propLabel[j];
+
+      label += `${item[prop]} `;
+
+    }
+
+    const data : IDataInputSelect = {
+      label: label,
+      value: item[propValue]
+    }
+
+    options.push(data);
+
+  }
+
+  return options;
+
+}

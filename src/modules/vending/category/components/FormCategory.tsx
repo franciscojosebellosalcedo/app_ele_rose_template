@@ -16,7 +16,7 @@ import { useFormik } from 'formik'
 import { FC, useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import { ICategory, ICategoryModel, IResponseHttp, IUserModel } from '../../../../models/models'
-import { convertFileToBase64, handleSubmitFileUploadcare } from '../../../../utils'
+import { colorRedInfoInput, convertFileToBase64, handleSubmitFileUploadcare } from '../../../../utils'
 import { CategoryService } from '../category.service'
 import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
@@ -253,7 +253,7 @@ const FormCategory: FC<Props> = ({ isOpenModal, paginateCategories, setIsOpenMod
             {formik.touched.name && formik.errors.name && (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">
-                  <span role="alert" style={{ color: 'red' }}>
+                  <span role="alert" style={{ color: colorRedInfoInput }}>
                     {formik.errors.name}
                   </span>
                 </div>
@@ -297,7 +297,7 @@ const FormCategory: FC<Props> = ({ isOpenModal, paginateCategories, setIsOpenMod
             {isErrorFile ? (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">
-                  <span role="alert" style={{ color: 'red' }}>
+                  <span role="alert" style={{ color: colorRedInfoInput }}>
                     Se requiere la imagen
                   </span>
                 </div>
@@ -336,7 +336,7 @@ const FormCategory: FC<Props> = ({ isOpenModal, paginateCategories, setIsOpenMod
             {formik.touched.status && formik.errors.status && (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">
-                  <span role="alert" style={{ color: 'red' }}>
+                  <span role="alert" style={{ color: colorRedInfoInput }}>
                     {formik.errors.status}
                   </span>
                 </div>

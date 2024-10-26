@@ -7,6 +7,8 @@ import { setAllCategories } from '../features/category/categorySlice'
 import "../config"
 import { SetService } from '../modules/vending/set/set.service'
 import { setAllSets } from '../features/set/setSlice'
+import { ProductService } from '../modules/vending/product/product.service'
+import { setAllProducts } from '../features/product/productSlice'
 
 type Props={
   children: React.ReactNode
@@ -16,11 +18,24 @@ const categoryService: CategoryService = CategoryService.getInstance();
 
 const setService : SetService = SetService.getInstance();
 
+const productService : ProductService = ProductService.getInstance();
+
 const Layaut: FC<Props> = ({children}) => {
 
   const user: IUserModel | undefined = useSelector((state: any) => state.user.data);
 
   const dispatch = useDispatch()
+
+  const getProducts = async () => {
+    if (user?.accessToken) {
+      try {
+        const response: IResponseHttp = await productService.getProducts(user.accessToken);
+        return response.data
+      } catch (error) {
+        return []
+      }
+    }
+  }
 
   const getCategories = async () => {
     if (user?.accessToken) {
@@ -49,14 +64,16 @@ const Layaut: FC<Props> = ({children}) => {
       try {
         const [
 
-          categories, sets
+          categories, sets , products,
 
-        ] = await Promise.all([ getCategories() , getSets(),
+        ] = await Promise.all([ getCategories() , getSets(), getProducts()
         ])
 
         dispatch(setAllCategories(categories));
 
         dispatch(setAllSets(sets))
+
+        dispatch(setAllProducts(products))
 
       } catch (error) {
         console.log(error)

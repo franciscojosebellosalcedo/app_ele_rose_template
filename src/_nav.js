@@ -1,11 +1,9 @@
 import {
-  cilBasket,
   cilCart,
   cilSpeedometer
 } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { CNavGroup, CNavItem } from '@coreui/react'
-import React from 'react'
 
 const _nav = [
   {
@@ -30,6 +28,11 @@ const _nav = [
         component: CNavItem,
         name: 'Colecciones',
         to: '/vending/set',
+      },
+      {
+        component: CNavItem,
+        name: 'Productos',
+        to: '/vending/product',
       },
 
 

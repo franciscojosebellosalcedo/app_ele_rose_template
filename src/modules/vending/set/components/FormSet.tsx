@@ -19,7 +19,7 @@ import { toast } from 'sonner'
 import * as Yup from 'yup'
 import { addSet, setSet } from '../../../../features/set/setSlice'
 import { IResponseHttp, ISet, ISetModel, IUserModel } from '../../../../models/models'
-import { convertFileToBase64, handleSubmitFileUploadcare } from '../../../../utils'
+import { colorRedInfoInput, convertFileToBase64, handleSubmitFileUploadcare } from '../../../../utils'
 import { SetService } from '../set.service'
 
 type Props = {
@@ -252,7 +252,7 @@ const FormSet: FC<Props> = ({ isOpenModal, paginateSets, setIsOpenModalSet, setS
             {formik.touched.name && formik.errors.name && (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">
-                  <span role="alert" style={{ color: 'red' }}>
+                  <span role="alert" style={{ color: colorRedInfoInput }}>
                     {formik.errors.name}
                   </span>
                 </div>
@@ -296,7 +296,7 @@ const FormSet: FC<Props> = ({ isOpenModal, paginateSets, setIsOpenModalSet, setS
             {isErrorFile ? (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">
-                  <span role="alert" style={{ color: 'red' }}>
+                  <span role="alert" style={{ color: colorRedInfoInput}}>
                     Se requiere la imagen
                   </span>
                 </div>
@@ -335,7 +335,7 @@ const FormSet: FC<Props> = ({ isOpenModal, paginateSets, setIsOpenModalSet, setS
             {formik.touched.status && formik.errors.status && (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">
-                  <span role="alert" style={{ color: 'red' }}>
+                  <span role="alert" style={{ color: colorRedInfoInput }}>
                     {formik.errors.status}
                   </span>
                 </div>
