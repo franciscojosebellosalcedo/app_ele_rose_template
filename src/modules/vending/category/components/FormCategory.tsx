@@ -16,7 +16,7 @@ import { useFormik } from 'formik'
 import { FC, useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import { ICategory, ICategoryModel, IResponseHttp, IUserModel } from '../../../../models/models'
-import { colorRedInfoInput, convertFileToBase64, handleSubmitFileUploadcare } from '../../../../utils'
+import { colorRedInfoInput, compressImage, convertFileToBase64, handleSubmitFileUploadcare } from '../../../../utils'
 import { CategoryService } from '../category.service'
 import { toast } from 'sonner'
 import { useSelector } from 'react-redux'
@@ -270,13 +270,15 @@ const FormCategory: FC<Props> = ({ isOpenModal, paginateCategories, setIsOpenMod
                 const files = e.target.files
 
                 if (files && files[0]) {
-                  const file = files[0]
+                  const file = files[0];
 
-                  const base64 = await convertFileToBase64(file)
+                  const fileCompress = await compressImage(file);
+
+                  const base64 = await convertFileToBase64(fileCompress)
 
                   setBase64(base64)
 
-                  setImagenSelected(file)
+                  setImagenSelected(fileCompress)
 
                   setIsErrorFile(false)
 

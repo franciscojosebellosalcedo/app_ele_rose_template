@@ -1,6 +1,19 @@
 import { base } from "@uploadcare/upload-client"
 import { isProduction } from "./config";
 import { IDataInputSelect } from "./models/models";
+import imageCompression from 'browser-image-compression';
+
+// compress file image
+export const compressImage = async (file: any) => {
+
+  const options = { maxSizeMB: 0.8 , maxWidthOrHeight: 800, useWebWorker: true, initialQuality: 0.7 };
+  const compressedFile = await imageCompression(file, options);
+
+  const renamedFile = new File([compressedFile], file.name, { type: compressedFile.type });
+
+  return renamedFile;
+
+}
 
 //if content character
 export const regexIsContentCharacter= /\S/;

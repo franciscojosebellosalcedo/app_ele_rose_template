@@ -15,6 +15,7 @@ const routes = [
   { path: '/vending/set', name: 'Colecciones', element: Set },
   { path: '/vending/product', name: 'Productos', element: Product },
   { path: '/vending/product/createProduct', name: 'Crear producto', element: FormProduct },
+  { path: '/vending/product/editProduct/:id', name: 'Editar producto', element: FormProduct },
 
 ]
 

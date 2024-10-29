@@ -19,7 +19,7 @@ import { toast } from 'sonner'
 import * as Yup from 'yup'
 import { addSet, setSet } from '../../../../features/set/setSlice'
 import { IResponseHttp, ISet, ISetModel, IUserModel } from '../../../../models/models'
-import { colorRedInfoInput, convertFileToBase64, handleSubmitFileUploadcare } from '../../../../utils'
+import { colorRedInfoInput, compressImage, convertFileToBase64, handleSubmitFileUploadcare } from '../../../../utils'
 import { SetService } from '../set.service'
 
 type Props = {
@@ -269,15 +269,17 @@ const FormSet: FC<Props> = ({ isOpenModal, paginateSets, setIsOpenModalSet, setS
                 const files = e.target.files
 
                 if (files && files[0]) {
-                  const file = files[0]
+                  const file = files[0];
 
-                  const base64 = await convertFileToBase64(file)
+                  const fileCompress = await compressImage(file);
 
-                  setBase64(base64)
+                  const base64 = await convertFileToBase64(fileCompress);
 
-                  setImagenSelected(file)
+                  setBase64(base64);
 
-                  setIsErrorFile(false)
+                  setImagenSelected(fileCompress);
+
+                  setIsErrorFile(false);
 
                 } else {
 

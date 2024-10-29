@@ -26,12 +26,12 @@ export const productSlice = createSlice({
 
     setProduct: (state, action) => {
       const list = state.data.list
-      const index = state.data.list.findIndex((cat) => cat._id === action.payload._id)
+      const index = state.data.list.findIndex((product) => product._id === action.payload._id)
       list[index] = action.payload
       state.data.list = list
 
       const found = state.data.found
-      const indexFound = state.data.found.findIndex((cat) => cat._id === action.payload._id)
+      const indexFound = state.data.found.findIndex((product) => product._id === action.payload._id)
       found[indexFound] = action.payload
       state.data.found = found
     },

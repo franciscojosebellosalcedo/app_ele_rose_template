@@ -1,3 +1,19 @@
+export interface IDataVariantModel{
+  _id: string
+  valueVariant: any
+  amount: number
+  product: string
+  typeVariant: string
+}
+
+export interface ITypeVariantModel{
+  _id: string
+  name:string
+  status: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface IProductImagen{
   idUpload:string
   imagen: string
@@ -19,12 +35,14 @@ export interface IProduct{
   pricePromotion: number
   available:  number
   existence: number
+  haveDiscount: boolean
+  typeVariant: string
   cost: number
   haveVariant: boolean
-  typeVariant: string
   status: number
 
   listImagen?: IProductImagen[]
+  listVariants?: IDataVariantModel[]
 }
 export interface IProductModel{
   _id: string
@@ -37,13 +55,16 @@ export interface IProductModel{
   realPrice: number
   pricePromotion: number
   available:  number
+  haveDiscount: boolean
   existence: number
   cost: number
   haveVariant: boolean
-  typeVariant: string
   status: boolean
+  createdAt: Date
+  updatedAt: Date
 
   listImagen ? : IProductImagen []
+  listVariants ? : IDataVariantModel []
 
 }
 
@@ -53,7 +74,7 @@ export interface IDataResponsePagination {
 	currentPage: number,
 }
 
-export interface ITypeVariant{
+export interface ISize{
   name: string
   status: number
 }
@@ -63,9 +84,19 @@ export interface IColor{
   status: number
 }
 
-export interface IColorModel{
+export interface ISizeModel{
+  _id: string
   name: string
   status: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+export interface IColorModel{
+  _id: string
+  name: string
+  status: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 export interface ICategory{
   name: string
@@ -83,12 +114,16 @@ export interface ISetModel{
   name: string
   imagen: string
   status: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 export interface ICategoryModel{
   _id: string
   name: string
   imagen: string
   status: boolean
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface IUserModel {

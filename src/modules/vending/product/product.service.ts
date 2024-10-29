@@ -1,4 +1,4 @@
-import { IProduct, IProductImagen } from '../../../models/models'
+import { IDataVariantModel, IProduct, IProductImagen, IProductModel } from '../../../models/models'
 import { FecthRequestModel } from '../../../models/request.model'
 
 export class ProductService {
@@ -19,7 +19,7 @@ export class ProductService {
     return ProductService.instance
   }
 
-  async saveProduct( values: {product: IProduct, listImagen: IProductImagen []} , token: string) {
+  async saveProduct( values: {product: IProduct, listImagen: IProductImagen [], listVariants: IDataVariantModel[]} , token: string) {
     const { listImagen , ...restData} = values.product;
     values.product = restData;
     const response = await this.request.post(this.textUrl, values, token);
@@ -33,6 +33,17 @@ export class ProductService {
 
   async paginateProducts( page: number, itemsPerPage: number, token:string){
     const response= await this.request.get(this.textUrl +`/paginated?page=${page}&limit=${itemsPerPage}`,token);
+    return response;
+  }
+
+  async changeStatusProduct(product: IProductModel , token:string){
+    const text=`${this.textUrl}/${product.status=== true ? 'disable':'enable'}/${product._id}`;
+    const response= await this.request.put(text,null,token);
+    return response;
+  }
+
+  async updateProductById( id: string , values: { product: IProduct, listImagen: IProductImagen [], listVariants: IDataVariantModel[], listRemovedVariants: string[], listRemovedImagens: string[] } , token:string){
+    const response= await this.request.put(this.textUrl + `/${id}`, values, token);
     return response;
   }
 
