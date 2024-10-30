@@ -136,6 +136,10 @@ const Layaut: FC<Props> = ({children}) => {
       } catch (error) {
         console.log(error)
       }
+      setIsLoader(false)
+      console.log("se cargo la info");
+
+
     }
     if (user) {
       fetchData()
@@ -143,12 +147,11 @@ const Layaut: FC<Props> = ({children}) => {
       console.log('not')
     }
 
-    setIsLoader(false)
   }, [user])
   return <>
     {
       isLoader ?
-        <CSpinner color='primary'/>
+        <div style={{display:"flex", alignItems: "center", justifyContent:"center"}}><CSpinner color='primary'/></div>
       : children
     }
   </>

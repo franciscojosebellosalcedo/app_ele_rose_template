@@ -645,7 +645,18 @@ const FormProduct = () => {
             listAux.push(imagen.imagen);
           }
 
-          setListVariantsProduct([...listVariants]);
+          if(listVariants.length === 0){
+
+            setListVariantsProduct([
+              { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
+              { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
+            ]);
+
+          }else{
+
+            setListVariantsProduct([...listVariants]);
+
+          }
 
           setListBase64(listAux);
 
