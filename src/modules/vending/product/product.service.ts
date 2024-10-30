@@ -52,4 +52,9 @@ export class ProductService {
     return response
   }
 
+  async getProductById( idProduct: string , token: string) {
+    const response = await this.request.get(this.textUrl + `/oneProduct/${idProduct}`, token)
+    return response
+  }
+
 }

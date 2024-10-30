@@ -2,8 +2,6 @@ import { cilPlus, cilTrash, cilX } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
   CButton,
-  CCard,
-  CCardHeader,
   CCol,
   CForm,
   CFormCheck,
@@ -11,10 +9,9 @@ import {
   CFormSelect,
   CFormTextarea,
   CImage,
-  CListGroup,
   CListGroupItem,
   CRow,
-  CSpinner,
+  CSpinner
 } from '@coreui/react'
 import clsx from 'clsx'
 import { useFormik } from 'formik'
@@ -23,7 +20,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as Yup from 'yup'
-import { addProduct } from '../../../../features/product/productSlice'
+import { addProduct, setProduct } from '../../../../features/product/productSlice'
 import ContainerContent from '../../../../helpers/ContainerContent'
 import {
   ICategoryModel,
@@ -49,25 +46,6 @@ import {
 import FormCategory from '../../category/components/FormCategory'
 import FormSet from '../../set/components/FormSet'
 import { ProductService } from '../product.service'
-
-const initialValues: IProduct = {
-  name: '',
-  description: '',
-  amount: 0,
-  available: 0,
-  category: '',
-  haveDiscount: false,
-  cost: 0,
-  existence: 0,
-  haveVariant: false,
-  percentage: 0,
-  pricePromotion: 0,
-  realPrice: 0,
-  typeVariant: "",
-  set: '',
-  status: 1,
-  listImagen: [],
-}
 
 const schemaValidation = Yup.object().shape({
   name: Yup.string().required('Se requiere el nombre').min(5, 'Mínimo 5 caracteres'),
@@ -162,6 +140,34 @@ const FormProduct = () => {
 
   const params = useParams();
 
+  const [productFound , setProductFound] = useState<IProduct | null>(null);
+
+  const [isLoaderGet, setIsLoaderGet] = useState<boolean>(false);
+
+  const [listRemovedImagens , setListRemovedImagens] = useState<string[]>([]);
+
+  const [listRemovedVariant, setListRemovedVariant] = useState<string[]>([]);
+
+  const [initialValues , setInitialValues] = useState<IProduct>({
+    name: '',
+    description: '',
+    amount: 0,
+    available: 0,
+    category: '',
+    haveDiscount: false,
+    cost: 0,
+    existence: 0,
+    haveVariant: false,
+    percentage: 0,
+    pricePromotion: 0,
+    realPrice: 0,
+    typeVariant: "",
+    set: '',
+    status: 1,
+    listImagen: [],
+    listVariants: [],
+  })
+
   // hand ler list imagen
   const handlerListImagen = async (files: any) => {
     setIsLoaderImagens(true)
@@ -184,13 +190,18 @@ const FormProduct = () => {
       for (let index = 0; index < keys.length; index++) {
         const file = files[index]
 
-        const fileCompress = await compressImage(file)
+        if(file._id === undefined){
 
-        listFiles.push(fileCompress)
+          const fileCompress = await compressImage(file)
 
-        const base64 = await convertFileToBase64(fileCompress)
+          listFiles.push(fileCompress)
 
-        listAux.push(base64)
+          const base64 = await convertFileToBase64(fileCompress)
+
+          listAux.push(base64)
+
+        }
+
       }
 
       setListImagen(listFiles)
@@ -209,7 +220,20 @@ const FormProduct = () => {
           action: {
             label: 'Si',
             onClick: async () => {
-              const listAux = listVariantsProduct
+
+              const listAux = listVariantsProduct;
+              const listremovedVariantAux = listRemovedVariant;
+
+              const variantFound = listAux[indexValue];
+
+              if(variantFound._id){
+
+                listremovedVariantAux.push(variantFound._id);
+
+              }
+
+              setListRemovedVariant([...listremovedVariantAux]);
+
               setListVariantsProduct([...listAux.filter((_, index) => index !== indexValue)])
               setOpenConfirm(false)
             },
@@ -238,6 +262,23 @@ const FormProduct = () => {
     }
   }
 
+  // add list delete variant
+  const addListDeletevariant = ()=>{
+    const listRemovedVariant = [];
+
+    for (let index = 0; index < listVariantsProduct.length; index++) {
+      const variant = listVariantsProduct[index];
+
+      if( variant._id !== undefined && variant._id !== null ){
+        listRemovedVariant.push(variant._id);
+      }
+
+    }
+
+    setListRemovedVariant([...listRemovedVariant]);
+
+  }
+
   // handler add new variant
   const handlerAddNewVariant = () => {
     const listAux = listVariantsProduct
@@ -250,13 +291,24 @@ const FormProduct = () => {
       valueVariant: '',
     }
 
-    listAux.unshift({ ...newVariant })
+    listAux.push(newVariant);
 
     setListVariantsProduct([...listAux])
   }
 
   // handler delete imagen
   const handleDelete = (indexImagen: number) => {
+    const imagenFound = listImagen[indexImagen];
+    const listRemovedImagensAux = listRemovedImagens;
+
+    if(imagenFound._id !== undefined && imagenFound._id !== null ){
+
+      listRemovedImagensAux.push(imagenFound._id);
+
+    }
+
+    setListRemovedImagens([...listRemovedImagensAux]);
+
     setListBase64(listBase64.filter((_, i) => i !== indexImagen))
     setListImagen(listImagen.filter((_, i) => i !== indexImagen))
   }
@@ -316,14 +368,21 @@ const FormProduct = () => {
           let listImagenUploadcare: IProductImagen[] = []
 
           for (let index = 0; index < listImagen.length; index++) {
-            const imagen = listImagen[index]
-            const idUpload = await handleSubmitFileUploadcare(imagen)
 
-            listImagenUploadcare.push({
-              idUpload: idUpload,
-              imagen: `https://ucarecdn.com/${idUpload}/`,
-              product: '',
-            })
+            const imagen = listImagen[index]
+
+            if(imagen._id === undefined){
+
+              const idUpload = await handleSubmitFileUploadcare(imagen)
+
+              listImagenUploadcare.push({
+                idUpload: idUpload,
+                imagen: `https://ucarecdn.com/${idUpload}/`,
+                product: '',
+              })
+
+            }
+
           }
 
           const responseHttp: IResponseHttp = await productService.saveProduct(
@@ -352,12 +411,112 @@ const FormProduct = () => {
     setIsLoader(false)
   }
 
+  //update product by id
+  const updateProductById = async (values: IProduct)=>{
+    setIsLoader(true);
+
+    try {
+
+      values.available = values.amount
+      values.existence = values.amount
+
+      const boolVaidationField = formik.values.haveVariant ===  true && formik.values.typeVariant === "";
+
+      const boolValidation = formik.values.haveVariant && formik.values.typeVariant !== "";
+
+      const validationListVariant = boolValidation && listVariantsProduct.some((variant) => variant.amount <= 0 || variant.valueVariant === "");
+
+      if(boolVaidationField){
+
+        setIsErrorTypeVariant(true);
+
+      }else if(boolValidation && listVariantsProduct.length === 0){
+
+        toast.info("Por favor agregue variantes");
+
+      }else if(validationListVariant){
+
+        toast.info("Hay campos por llenar en la variantes");
+
+      }else if(listVariantsProduct.some((variant) => variant.amount < 0)){
+
+        toast.info("La cantidad de las variantes no puede ser cero ni negativo");
+
+      }else if(!isAmountCorrect() && listVariantsProduct.length > 0 && boolValidation){
+
+        toast.info("Ajuste las cantidades de las variantes a la cantidad del producto");
+
+      }else{
+
+        const idProduct = params.id;
+
+        if (user && listBase64.length > 0 && idProduct) {
+
+          let listImagenUploadcare: IProductImagen[] = []
+
+          for (let index = 0; index < listImagen.length; index++) {
+
+            const imagen = listImagen[index]
+
+            const bool = imagen._id === undefined;
+
+            if(bool){
+
+              const idUpload = await handleSubmitFileUploadcare(imagen)
+
+              listImagenUploadcare.push({
+                idUpload: idUpload,
+                imagen: `https://ucarecdn.com/${idUpload}/`,
+                product: '',
+              })
+
+            }
+
+          }
+
+          const responseHttp: IResponseHttp = await productService.updateProductById(
+            idProduct,
+            { product: values,
+              listImagen: listImagenUploadcare ,
+              listVariants: formik.values.haveVariant ? listVariantsProduct : [],
+              listRemovedImagens: listRemovedImagens,
+              listRemovedVariants: listRemovedVariant
+            },
+            user.accessToken,
+          )
+
+          if (responseHttp.status === 200 && responseHttp.response) {
+            const dataResponse: IProductModel = responseHttp.data
+
+            dispatch(setProduct(dataResponse))
+
+            toast.success(responseHttp.message)
+
+            navigate('/vending/product')
+          }
+        }
+      }
+
+    } catch (error : any) {
+      toast.error(error.message);
+    }
+    setIsLoader(false);
+  }
+
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: schemaValidation,
     onSubmit: async (values: IProduct) => {
 
-      await saveProduct(values);
+      if(params.id !== undefined && params.id !== null){
+
+        await updateProductById(values);
+
+      }else{
+
+        await saveProduct(values);
+
+      }
 
     },
   })
@@ -398,15 +557,115 @@ const FormProduct = () => {
   }
 
   // calculate price promotion
-  const calculatePricePromotion = (price:number, percentage: number) => {
-    const precioPromocion = price - (price * (percentage / 100));
-    return parseFloat(precioPromocion.toFixed(2));
+  const calculatePricePromotion = (percentage: number) => {
+
+    if(formik.values.haveDiscount === false){
+
+      formik.setFieldValue("pricePromotion", 0);
+
+    }else{
+
+      if(formik.values.realPrice > 0 ){
+
+        const pricePromotion = formik.values.realPrice - (formik.values.realPrice * (percentage / 100));
+
+        formik.setFieldValue("pricePromotion", parseFloat(pricePromotion.toFixed(2)));
+
+      }
+
+    }
+
   }
 
   // calculate percentaje
-  const calculatePercentage = (price: number, pricePromotion: number) => {
-    const percentage = ((price - pricePromotion) / price) * 100
-    return parseFloat(percentage.toFixed(2));
+  const calculatePercentage = (pricePromotion: number) => {
+
+    if(formik.values.haveDiscount === false){
+
+    formik.setFieldValue("percentage", 0);
+
+    }else{
+
+      if(formik.values.realPrice > 0){
+
+        const percentage = ((formik.values.realPrice - pricePromotion) / formik.values.realPrice) * 100
+
+        formik.setFieldValue("percentage", parseFloat(percentage.toFixed(2)));
+
+      }
+
+    }
+
+  }
+
+  // get one product by id
+  const getOneProductById = async ()=>{
+    setIsLoaderGet(true);
+
+    try {
+
+      const idProduct  = params.id;
+
+      if(idProduct && user.accessToken){
+
+        const responseHttp : IResponseHttp = await productService.getProductById(idProduct , user.accessToken);
+        if(responseHttp.status === 200 && responseHttp.response){
+
+          const dataResponse : IProductModel = responseHttp.data;
+          const { _id, createdAt, updatedAt, ...restData} = dataResponse;
+
+          const data = {
+            amount: restData.amount,
+            available: restData.available,
+            category: restData.category,
+            cost: restData.cost,
+            description: restData.description,
+            existence: restData.existence,
+            haveDiscount: restData.haveDiscount,
+            haveVariant: restData.haveVariant,
+            name: restData.name,
+            percentage: restData.percentage,
+            pricePromotion: restData.pricePromotion,
+            realPrice: restData.realPrice,
+            set: restData.set,
+            status: restData.status ? 1: 0,
+            typeVariant: restData.typeVariant,
+            listImagen: restData.listImagen,
+            listVariants: restData.listVariants
+          }
+
+          const listVariants = restData.listVariants ? restData.listVariants : [];
+
+          const listImagens = restData.listImagen ? restData.listImagen : [];
+
+          const listAux = [];
+
+          for (let index = 0; index < listImagens.length; index++) {
+            const imagen = listImagens[index];
+            listAux.push(imagen.imagen);
+          }
+
+          setListVariantsProduct([...listVariants]);
+
+          setListBase64(listAux);
+
+          setListImagen(listImagens);
+
+          setInitialValues(data);
+
+          setProductFound(data);
+
+        }
+      }
+
+    } catch (error : any) {
+
+      toast.error(error.message);
+      navigate("/vending/product");
+
+    }
+
+    setIsLoaderGet(false);
 
   }
 
@@ -439,6 +698,22 @@ const FormProduct = () => {
     setOptionsTypesVariants(optionsTypeVariant)
   }, [typesVariants])
 
+
+  useEffect(()=>{
+
+    getOneProductById();
+
+  },[user]);
+
+  useEffect(()=>{
+
+    if(initialValues){
+
+      formik.setValues({...initialValues});
+    }
+
+  },[productFound, initialValues]);
+
   useEffect(() => {
     const typeVariantFound = typesVariants.find(
       (typeVariant) => typeVariant.status === true && typeVariant._id === formik.values.typeVariant,
@@ -460,47 +735,10 @@ const FormProduct = () => {
     }
   }, [formik.values.typeVariant]);
 
-  useEffect(()=>{
-
-    if(formik.values.haveDiscount === false){
-
-      formik.setFieldValue("percentage", 0);
-
-    }else{
-
-      if(formik.values.realPrice > 0){
-
-        const percentage = calculatePercentage( formik.values.realPrice, formik.values.pricePromotion);
-
-        formik.setFieldValue("percentage", percentage);
-
-      }
-
-    }
-
-  },[formik.values.pricePromotion]);
-
-  useEffect(()=>{
-
-    if(formik.values.haveDiscount === false){
-
-      formik.setFieldValue("pricePromotion", 0);
-
-    }else{
-
-      if(formik.values.realPrice > 0  && formik.values.pricePromotion > 0){
-
-        const pricePromotion = calculatePricePromotion( formik.values.realPrice, formik.values.percentage);
-
-        formik.setFieldValue("pricePromotion", pricePromotion);
-
-      }
-
-    }
-
-  },[formik.values.percentage]);
-
   return (
+    isLoaderGet ?
+      <CSpinner color='primary' />
+    :
     <ContainerContent title={params.id ? "Editar producto": "Nuevo producto"}>
       <FormCategory
         paginateCategories={() => {}}
@@ -770,6 +1008,8 @@ const FormProduct = () => {
 
             if (value === false) {
 
+              addListDeletevariant();
+
               setIsErrorTypeVariant(false);
 
               formik.setFieldValue("typeVariant", "");
@@ -778,6 +1018,10 @@ const FormProduct = () => {
                 { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
                 { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
               ]);
+
+            }else{
+
+              setListRemovedVariant([]);
 
             }
 
@@ -790,6 +1034,7 @@ const FormProduct = () => {
             <CFormSelect
               label="Tipo de variante"
               className="mb-4"
+              defaultValue={formik.values.typeVariant}
               onChange={(e) => {
                 const value: string = e.target.value;
                 formik.setFieldValue("typeVariant", value);
@@ -931,7 +1176,20 @@ const FormProduct = () => {
                 type="number"
                 label="Precio descuento"
                 placeholder="Precio descuento"
-                {...formik.getFieldProps('pricePromotion')}
+                onChange={(e)=>{
+
+                  let value = e.target.value;
+
+                  if(isNaN(parseInt(e.target.value))){
+
+                    formik.setFieldValue("pricePromotion", value);
+
+                  }
+
+                  calculatePercentage(parseInt(value));
+
+                  formik.setFieldValue("pricePromotion", value);
+                }}
                 value={formik.values.pricePromotion}
                 className={clsx(
                   'form-control',
@@ -955,7 +1213,20 @@ const FormProduct = () => {
                 type="number"
                 label="Porcentaje"
                 placeholder="Porcentaje"
-                {...formik.getFieldProps('percentage')}
+                onChange={(e)=>{
+
+                  let value = e.target.value;
+
+                  if(isNaN(parseInt(e.target.value))){
+
+                    formik.setFieldValue("percentage", value);
+
+                  }
+
+                  calculatePricePromotion(parseInt(value));
+
+                  formik.setFieldValue("percentage", value);
+                }}
                 value={formik.values.percentage}
                 className={clsx(
                   'form-control',

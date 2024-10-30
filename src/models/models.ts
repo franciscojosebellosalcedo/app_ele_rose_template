@@ -59,6 +59,7 @@ export interface IProductModel{
   existence: number
   cost: number
   haveVariant: boolean
+  typeVariant: string
   status: boolean
   createdAt: Date
   updatedAt: Date
