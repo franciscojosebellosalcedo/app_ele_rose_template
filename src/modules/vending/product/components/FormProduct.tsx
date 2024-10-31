@@ -46,9 +46,15 @@ import {
 import FormCategory from '../../category/components/FormCategory'
 import FormSet from '../../set/components/FormSet'
 import { ProductService } from '../product.service'
+import Autocomplete from '../../../../components/AutoComplete'
 
 const schemaValidation = Yup.object().shape({
-  name: Yup.string().required('Se requiere el nombre').min(5, 'Mínimo 5 caracteres'),
+  name: Yup.string().required('Se requiere el nombre del producto').min(5, 'Mínimo 5 caracteres')
+  .test(
+    'no-espacios-solo',
+    'Se requiere el nombre del producto',
+    (value) => value.trim().length > 0
+  ),
 
   category: Yup.string().required('Se require la categoría'),
 
@@ -77,12 +83,19 @@ const schemaValidation = Yup.object().shape({
     }
   ),
 
-
   percentage: Yup.number()
     .min(0, 'El porcentaje no puede ser negativo')
     .optional(),
 
   cost: Yup.number().min(0.1, 'El costo debe ser mayor a 0').required('Se requiere el costo '),
+
+  status: Yup.number()
+    .required('Se require el status')
+    .test('is-number', 'Valor no válido', (value) => {
+      if (Number.isInteger(value)) return true
+      if (!value) return false
+      return isNaN(value)
+    }),
 
 })
 
@@ -554,6 +567,7 @@ const FormProduct = () => {
     borderRadius: '50%',
     cursor: 'pointer',
     backgroundColor: '#3498db',
+    zIndex: 99
   }
 
   // calculate price promotion
@@ -871,16 +885,21 @@ const FormProduct = () => {
               >
                 <CIcon style={{ color: 'white' }} icon={cilPlus} />
               </CButton>
-              <CFormSelect
-                label="Colección (Opcional)"
-                {...formik.getFieldProps('set')}
+              <Autocomplete
+                label='Colección (Opcional)'
                 className={clsx(
                   'form-control',
                   { 'is-invalid': formik.touched.set && formik.errors.set },
                   { 'is-valid': formik.touched.set && !formik.errors.set },
                 )}
-                defaultValue={formik.values.set}
                 options={[{ label: 'Seleccionar', value: '' }, ...optionsSets]}
+                isLabelTitle
+                defaultValue={formik.values.set}
+                onSelect={(selected)=>{
+
+                  formik.setFieldValue("set", selected.value);
+
+                }}
               />
             </div>
           </CCol>
@@ -897,16 +916,21 @@ const FormProduct = () => {
               >
                 <CIcon style={{ color: 'white' }} icon={cilPlus} />
               </CButton>
-              <CFormSelect
-                label="Categoría"
-                defaultValue={formik.values.category}
-                {...formik.getFieldProps('category')}
+              <Autocomplete
+                label='Categoría'
                 className={clsx(
-                  'form-control',
+                  'form-select',
                   { 'is-invalid': formik.touched.category && formik.errors.category },
                   { 'is-valid': formik.touched.category && !formik.errors.category },
                 )}
                 options={[{ label: 'Seleccionar', value: '' }, ...optionsCategory]}
+                isLabelTitle
+                defaultValue={formik.values.category}
+                onSelect={(selected)=>{
+
+                  formik.setFieldValue("category", selected.value);
+
+                }}
               />
             </div>
             {formik.touched.category && formik.errors.category && (
@@ -1010,6 +1034,32 @@ const FormProduct = () => {
           </CCol>
         </CRow>
 
+        <CCol className='mb-5'>
+          <CFormSelect
+            label="Status"
+            {...formik.getFieldProps('status')}
+            className={clsx(
+              'form-control',
+              { 'is-invalid': formik.touched.status && formik.errors.status },
+              { 'is-valid': formik.touched.status && !formik.errors.status },
+            )}
+            defaultValue={'1'}
+            options={[
+              { label: 'Inactivo', value: '0' },
+              { label: 'Activo', value: '1' },
+            ]}
+          />
+          {formik.touched.status && formik.errors.status && (
+            <div className="fv-plugins-message-container">
+              <div className="fv-help-block">
+                <span role="alert" style={{ color: colorRedInfoInput }}>
+                  {formik.errors.status}
+                </span>
+              </div>
+            </div>
+          )}
+        </CCol>
+
         <CFormCheck
           className="mb-4"
           label="¿Este producto tiene variante? (Opcional)"
@@ -1042,12 +1092,19 @@ const FormProduct = () => {
         />
         {formik.values.haveVariant ? (
           <>
-            <CFormSelect
-              label="Tipo de variante"
-              className="mb-4"
+            <Autocomplete
+              label='Tipo de variante'
+              className={clsx(
+                'form-select mb-3',
+                { 'is-invalid': formik.touched.typeVariant && formik.errors.typeVariant },
+                { 'is-valid': formik.touched.typeVariant && !formik.errors.typeVariant },
+              )}
+              options={[{ label: 'Seleccionar', value: '' }, ...optionsTypesVariants]}
+              isLabelTitle
               defaultValue={formik.values.typeVariant}
-              onChange={(e) => {
-                const value: string = e.target.value;
+              onSelect={(selected)=>{
+
+                const value: string = selected.value;
                 formik.setFieldValue("typeVariant", value);
 
                 if(value !== "" && formik.values.haveVariant){
@@ -1067,8 +1124,8 @@ const FormProduct = () => {
                 }))
 
                 setListVariantsProduct(listAux)
+
               }}
-              options={[{ label: 'Seleccionar', value: '' }, ...optionsTypesVariants]}
             />
             {isErrorTypeVariant === true &&  (
               <div className="fv-plugins-message-container">
@@ -1112,18 +1169,23 @@ const FormProduct = () => {
                 key={index}
                 className="d-flex align-item-center justify-content-center gap-4 mb-3"
               >
-                <CFormSelect
-                  options={[{ label: 'Seleccionar', value: '' }, ...listOptionsValueVariant]}
-                  value={variant.valueVariant.length > 0 ? variant.valueVariant : ''}
-                  onChange={(e) => {
-                    const value = e.target.value
+                <Autocomplete
+                label=''
+                className=""
+                options={[{ label: 'Seleccionar', value: '' }, ...listOptionsValueVariant]}
+                isLabelTitle
+                defaultValue={variant.valueVariant}
+                onSelect={(selected)=>{
+
+                  const value = selected.value
 
                     const listAux = [...listVariantsProduct]
                     listAux[index].valueVariant = value
 
                     setListVariantsProduct(listAux)
-                  }}
-                />
+
+                }}
+              />
                 <CFormInput
                   onKeyPress={(e) => {
                     if (e.key === '.' || e.key === ',' || e.key === '-' || e.key === '+') {

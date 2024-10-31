@@ -7,6 +7,9 @@ import userReducer from "../features/user/userSlice";
 import colorReducer from "../features/color/colorSlice";
 import sizeReducer from "../features/size/sizeSlice";
 import typeVariantReducer from "../features/typeVariant/typeVariantSlice";
+import clientReducer from "../features/client/clientSlice";
+import departamentReducer from "../features/departament/departamentSlice";
+import municipalityReducer from "../features/municipality/municipalitySlice";
 
 export const store = configureStore({
 
@@ -27,6 +30,12 @@ export const store = configureStore({
     size: sizeReducer,
 
     typeVariant: typeVariantReducer,
+
+    client: clientReducer,
+
+    departament: departamentReducer,
+
+    municipality: municipalityReducer,
 
   },
 })

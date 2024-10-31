@@ -6,24 +6,20 @@ import {
   CFormSelect,
   CRow,
   CSpinner,
-  CTable,
-  CTableBody,
-  CTableCaption,
   CTableHead,
   CTableHeaderCell,
-  CTableRow,
+  CTableRow
 } from '@coreui/react'
 import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import Pagination from '../../../../helpers/Pagination'
-import { IDataResponsePagination, IProductModel, IResponseHttp, IUserModel } from '../../../../models/models'
-import { useSelector } from 'react-redux'
-import ProductItem from './ProductItem'
-import Search from '../../../../helpers/Search'
-import { ProductService } from '../product.service'
-import { useDispatch } from 'react-redux'
-import { setAllProductFound, setAllProducts } from '../../../../features/product/productSlice'
 import { toast } from 'sonner'
+import { setAllProductFound, setAllProducts } from '../../../../features/product/productSlice'
+import Pagination from '../../../../helpers/Pagination'
+import Search from '../../../../helpers/Search'
+import { IDataResponsePagination, IProductModel, IResponseHttp, IUserModel } from '../../../../models/models'
+import { ProductService } from '../product.service'
+import ProductItem from './ProductItem'
 
 const productService : ProductService = ProductService.getInstance();
 

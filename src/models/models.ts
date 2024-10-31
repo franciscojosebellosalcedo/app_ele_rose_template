@@ -1,3 +1,46 @@
+export interface IMunicipalityModel{
+  _id: string
+  departament: string
+  name: string
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export interface IDepartamentModel{
+  _id: string
+  name: string
+  region: string
+  createdAt?: Date
+  updatedAt?: Date
+}
+export interface IAddresModel{
+  _id: string
+  client: string
+  departament: string
+  municipality: string
+  description: string
+  referencePoint: string
+  status: number
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export interface IClient{
+  name: string
+  email: string
+  phone: string
+  status: number
+}
+export interface IClientModel{
+  _id: string
+  name: string
+  email: string
+  phone: string
+  status: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+
 export interface IDataVariantModel{
   _id: string
   valueVariant: any

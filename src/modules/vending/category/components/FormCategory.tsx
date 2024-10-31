@@ -32,7 +32,13 @@ type Props = {
 }
 
 const schemaValidation = Yup.object().shape({
-  name: Yup.string().required('Se requiere el nombre').min(5, 'Mínimo 5 caracteres'),
+  name: Yup.string().required('Se requiere el nombre de la categoría').min(5, 'Mínimo 5 caracteres')
+  .test(
+    'no-espacios-solo',
+    'Se requiere el nombre de la categoría',
+    (value) => value.trim().length > 0
+  ),
+
   status: Yup.number()
     .required('Se require el status')
     .test('is-number', 'Valor no válido', (value) => {

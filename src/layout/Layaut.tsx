@@ -1,21 +1,27 @@
 import React, { FC, useEffect, useState } from 'react'
 
+import { CSpinner } from '@coreui/react'
 import { useDispatch, useSelector } from 'react-redux'
+import "../config"
+import { setAllCategories } from '../features/category/categorySlice'
+import { setAllClients } from '../features/client/clientSlice'
+import { setAllColors } from '../features/color/colorSlice'
+import { setAllDepartaments } from '../features/departament/departamentSlice'
+import { setAllProducts } from '../features/product/productSlice'
+import { setAllSets } from '../features/set/setSlice'
+import { setAllSizes } from '../features/size/sizeSlice'
+import { setAllTypesVariant } from '../features/typeVariant/typeVariantSlice'
+import { DepartamentService } from '../global/services/departament.service'
 import { IResponseHttp, IUserModel } from '../models/models'
 import { CategoryService } from '../modules/vending/category/category.service'
-import { setAllCategories } from '../features/category/categorySlice'
-import "../config"
-import { SetService } from '../modules/vending/set/set.service'
-import { setAllSets } from '../features/set/setSlice'
-import { ProductService } from '../modules/vending/product/product.service'
-import { setAllProducts } from '../features/product/productSlice'
+import { ClientService } from '../modules/vending/client/client.service'
 import { ColorService } from '../modules/vending/product/color.service'
+import { ProductService } from '../modules/vending/product/product.service'
 import { SizeService } from '../modules/vending/product/size.service'
-import { setAllColors } from '../features/color/colorSlice'
-import { setAllSizes } from '../features/size/sizeSlice'
-import { CSpinner } from '@coreui/react'
-import { setAllTypesVariant } from '../features/typeVariant/typeVariantSlice'
 import { TypeVariantService } from '../modules/vending/product/typeVariant.service'
+import { SetService } from '../modules/vending/set/set.service'
+import { setAllMunicipalities } from '../features/municipality/municipalitySlice'
+import { MunicipalityService } from '../global/services/municipality.service'
 
 type Props={
   children: React.ReactNode
@@ -32,6 +38,12 @@ const colorService : ColorService = ColorService.getInstance();
 const sizeService : SizeService = SizeService.getInstance();
 
 const typeVariantService : TypeVariantService = TypeVariantService.getInstance();
+
+const clientService : ClientService = ClientService.getInstance();
+
+const departamentService : DepartamentService = DepartamentService.getInstance();
+
+const municipalityService : MunicipalityService = MunicipalityService.getInstance();
 
 const Layaut: FC<Props> = ({children}) => {
 
@@ -110,15 +122,51 @@ const Layaut: FC<Props> = ({children}) => {
     }
   }
 
+  const getClients = async () => {
+    if (user?.accessToken) {
+      try {
+        const response: IResponseHttp = await clientService.getClients(user.accessToken);
+        return response.data
+      } catch (error) {
+        return []
+      }
+    }
+
+  }
+
+  const getDepartaments = async () => {
+    if (user?.accessToken) {
+      try {
+        const response: IResponseHttp = await departamentService.getAllDepartaments(user.accessToken);
+        return response.data
+      } catch (error) {
+        return []
+      }
+    }
+  }
+
+  const getMunipalities = async () => {
+    if (user?.accessToken) {
+      try {
+        const response: IResponseHttp = await municipalityService.getAllMunicipalities(user.accessToken);
+        return response.data
+      } catch (error) {
+        return []
+      }
+    }
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       setIsLoader(true);
       try {
         const [
 
-          categories, sets , products, colors , sizes , typesVariants
+          categories, sets , products, colors , sizes , typesVariants, clients, departaments , municipalities
 
-        ] = await Promise.all([ getCategories() , getSets(), getProducts(), getColors() , getSizes(), getTypesVariants()
+        ] = await Promise.all([ getCategories() , getSets(), getProducts(), getColors() , getSizes(), getTypesVariants(), getClients(),
+
+          getDepartaments(), getMunipalities(),
         ])
 
         dispatch(setAllCategories(categories));
@@ -133,11 +181,16 @@ const Layaut: FC<Props> = ({children}) => {
 
         dispatch(setAllTypesVariant(typesVariants))
 
+        dispatch(setAllClients(clients))
+
+        dispatch(setAllDepartaments(departaments))
+
+        dispatch(setAllMunicipalities(municipalities))
+
       } catch (error) {
         console.log(error)
       }
       setIsLoader(false)
-      console.log("se cargo la info");
 
 
     }
