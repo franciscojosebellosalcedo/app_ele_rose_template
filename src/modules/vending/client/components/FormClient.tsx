@@ -356,33 +356,6 @@ const FormClient : FC<Props> = ({
 
           </CCol>
 
-          <CCol className='mb-5'>
-          <CFormSelect
-            data-live-search="true"
-            label="Status"
-            {...formik.getFieldProps('status')}
-            className={clsx(
-              'form-control',
-              { 'is-invalid': formik.touched.status && formik.errors.status },
-              { 'is-valid': formik.touched.status && !formik.errors.status },
-            )}
-            defaultValue={'1'}
-            options={[
-              { label: 'Inactivo', value: '0' },
-              { label: 'Activo', value: '1' },
-            ]}
-          />
-          {formik.touched.status && formik.errors.status && (
-            <div className="fv-plugins-message-container">
-              <div className="fv-help-block">
-                <span role="alert" style={{ color: colorRedInfoInput }}>
-                  {formik.errors.status}
-                </span>
-              </div>
-            </div>
-          )}
-        </CCol>
-
         </CRow>
 
         <TableAddress
