@@ -39,6 +39,7 @@ const schemaValidation = Yup.object().shape({
   phone: Yup.string()
   .required("Se requiere télefono del cliente")
   .min(10, "Mínimo 10 caracteres")
+  .matches(/^\d+$/, "El teléfono solo debe contener números")
   .max(10, "Máximo 10 caracteres"),
 
   status: Yup.number()
