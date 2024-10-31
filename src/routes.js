@@ -27,6 +27,8 @@ const routes = [
   { path: '/vending/client', name: 'Clientes', element: Client },
   { path: '/vending/client/createClient', name: 'Crear cliente', element: FormClient },
 
+  { path: '/vending/client/editClient/:id', name: 'Editar cliente', element: FormClient },
+
 ]
 
 export default routes;

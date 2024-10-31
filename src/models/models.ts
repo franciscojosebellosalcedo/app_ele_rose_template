@@ -15,7 +15,8 @@ export interface IDepartamentModel{
 }
 export interface IAddresModel{
   _id: string
-  client: string
+  entity: number
+  entityId: string
   departament: string
   municipality: string
   description: string

@@ -26,12 +26,16 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ options, onSelect, label, i
 
   useEffect(() => {
 
-    const defaultOption = options.find((option) => option.value === defaultValue);
+    if(defaultValue){
+      const defaultOption = options.find((option) => option.value === defaultValue);
 
-    if (defaultOption) {
+      if (defaultOption) {
 
-      setInputValue(defaultOption.label);
+        setInputValue(defaultOption.label);
 
+      }
+    }else{
+      setInputValue("");
     }
 
   }, [defaultValue, options]);
@@ -50,6 +54,8 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ options, onSelect, label, i
       setFilteredSuggestions(filtered);
 
     } else {
+
+      onSelect({label: "", value: ""});
 
       setFilteredSuggestions(options);
 
@@ -125,6 +131,7 @@ const Autocomplete: React.FC<AutocompleteProps> = ({ options, onSelect, label, i
         id='select'
         ref={inputRef}
         value={inputValue}
+        placeholder='Seleccionar'
         onChange={handleChange}
         onFocus={handleFocus}
         onKeyDown={handleKeyDown}

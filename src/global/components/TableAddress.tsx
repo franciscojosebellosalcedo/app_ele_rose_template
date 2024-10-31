@@ -1,19 +1,20 @@
-import { cilPencil, cilPlus, cilSwapHorizontal } from '@coreui/icons'
+import { cilPencil, cilPlus, cilTrash } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { CButton, CCol, CForm, CFormSelect, CFormTextarea, CModal, CModalBody, CModalHeader, CModalTitle, CTableHead, CTableHeaderCell, CTableRow } from '@coreui/react'
+import clsx from 'clsx'
+import { useFormik } from 'formik'
 import { FC, useEffect, useState } from 'react'
 import { ModalFooter } from 'react-bootstrap'
-import { IAddresModel, IDataInputSelect, IDepartamentModel, IMunicipalityModel } from '../../models/models'
-import Autocomplete from '../../components/AutoComplete'
 import { useSelector } from 'react-redux'
+import * as Yup from "yup"
+import Autocomplete from '../../components/AutoComplete'
+import { IAddresModel, IDataInputSelect, IDepartamentModel, IMunicipalityModel } from '../../models/models'
 import { colorRedInfoInput, getOptionsInputSelect } from '../../utils'
-import { useFormik } from 'formik'
-import * as Yup from "yup";
-import clsx from 'clsx'
 
 type Props ={
   listAddress: IAddresModel[]
   setListAddress: Function
+  entity: number
 }
 
 const schemaValidation = Yup.object().shape({
@@ -48,7 +49,8 @@ const schemaValidation = Yup.object().shape({
 
 const TableAddress : FC<Props> = ({
   listAddress,
-  setListAddress
+  setListAddress,
+  entity
 }) => {
 
   const [isOpenModal , setIsOpenModal] = useState<boolean>(false);
@@ -61,7 +63,8 @@ const TableAddress : FC<Props> = ({
 
   const [initialValues , setInitialValues] = useState<IAddresModel>({
     _id: "",
-    client: "",
+    entity: entity,
+    entityId: "",
     departament: "",
     description: "",
     municipality: "",
@@ -131,6 +134,13 @@ const TableAddress : FC<Props> = ({
     return municipalities.find((muni) => muni._id === idMunicipality);
   }
 
+  //handler delete one address
+  const deleteAddressByIndex = (indexAddress: number)=>{
+    const listAux = listAddress;
+    listAux.splice( indexAddress , 1 );
+    setListAddress([...listAux]);
+  }
+
   useEffect(()=>{
 
     const optionDepartament = getOptionsInputSelect(departaments , "_id", ["name"]);
@@ -150,7 +160,7 @@ const TableAddress : FC<Props> = ({
 
     }
 
-  },[formik.values.departament, municipalities]);
+  },[formik.values.departament]);
 
   useEffect(()=>{
 
@@ -158,7 +168,8 @@ const TableAddress : FC<Props> = ({
 
       const data: IAddresModel = {
         _id: addresSelected._id,
-        client: addresSelected.client,
+        entity: addresSelected.entity,
+        entityId: addresSelected.entityId,
         departament: addresSelected.departament,
         description: addresSelected.description,
         municipality: addresSelected.municipality,
@@ -204,8 +215,8 @@ const TableAddress : FC<Props> = ({
               isLabelTitle
               onSelect={(selected)=>{
                 formik.setFieldValue("departament" , selected.value);
-                formik.setFieldValue("municipality", "");
                 setOptionsMunicipality([]);
+                formik.setFieldValue("municipality", "");
               }}
               className=''
               defaultValue={formik.values.departament}
@@ -366,7 +377,7 @@ const TableAddress : FC<Props> = ({
               <tbody>
                 {
                   listAddress.map((address : IAddresModel , index: number) =>{
-                    return <tr key={address._id}>
+                    return <tr key={index}>
                         <td>
                             <div className='d-flex justify-content-start flex-column'>
                               <div  className=' text-hover-primary mb-1 fs-6'>
@@ -413,25 +424,30 @@ const TableAddress : FC<Props> = ({
 
                         <td>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
-                            <CButton onClick={(e)=>{
-                              // changeStatus(e)
-                            }} style={{ border: '.3px solid #007bff' }}>
-                              <CIcon
-                                size="lg"
-                                icon={cilSwapHorizontal}
-                                style={{ cursor: 'pointer' }}
-                                title="Habilitar y deshabilitar"
-                              />
-                            </CButton>
+                            {
+                              address._id ? "":
+                              <CButton size='sm' onClick={(e)=>{
 
-                            <CButton onClick={()=>{
+                                deleteAddressByIndex(index);
+
+                              }} style={{ border: '.3px solid #007bff' }}>
+                                <CIcon
+                                  size="sm"
+                                  icon={cilTrash}
+                                  style={{ cursor: 'pointer' }}
+                                  title="Eliminar"
+                                />
+                              </CButton>
+                            }
+
+                            <CButton size='sm' onClick={()=>{
 
                               setIndexSelected(index);
                               setAddresSelected(address);
                               setIsOpenModal(true);
 
                             }} style={{ border: '.3px solid #007bff' }}>
-                              <CIcon size="lg" icon={cilPencil} style={{ cursor: 'pointer' }} title="Editar" />
+                              <CIcon size="sm" icon={cilPencil} style={{ cursor: 'pointer' }} title="Editar" />
                             </CButton>
                           </div>
                         </td>

@@ -3,6 +3,7 @@ import { IClientModel } from '../../../../models/models'
 import { CButton } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilPencil } from '@coreui/icons'
+import { useNavigate } from 'react-router-dom'
 
 type Props ={
   client: IClientModel
@@ -11,6 +12,9 @@ type Props ={
 const ClientItem : FC<Props>= ({
   client
 }) => {
+
+  const navigate = useNavigate();
+
   return (
     <tr key={client._id}>
       <td>
@@ -50,10 +54,10 @@ const ClientItem : FC<Props>= ({
       <td>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
 
-          <CButton onClick={()=>{
-
+          <CButton size='sm' onClick={()=>{
+            navigate(`/vending/client/editClient/${client._id}`);
           }} style={{ border: '.3px solid #007bff' }}>
-            <CIcon size="lg" icon={cilPencil} style={{ cursor: 'pointer' }} title="Editar" />
+            <CIcon size="sm" icon={cilPencil} style={{ cursor: 'pointer' }} title="Editar" />
           </CButton>
         </div>
       </td>

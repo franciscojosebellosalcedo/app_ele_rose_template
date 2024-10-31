@@ -30,7 +30,7 @@ export class ClientService {
   }
 
   async paginateClients( page: number, itemsPerPage: number, token:string){
-    const response= await this.request.get(this.textUrl +`/paginated?page=${page}&limit=${itemsPerPage}`,token);
+    const response= await this.request.get(this.textUrl +`/client/paginated?page=${page}&limit=${itemsPerPage}`,token);
     return response;
   }
 

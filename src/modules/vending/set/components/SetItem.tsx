@@ -122,20 +122,20 @@ const SetItem : FC<Props> = ({
 
       <td>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
-          <CButton onClick={(e)=>changeStatus(e)} style={{ border: '.3px solid #007bff' }}>
+          <CButton size='sm' onClick={(e)=>changeStatus(e)} style={{ border: '.3px solid #007bff' }}>
             <CIcon
-              size="lg"
+              size="sm"
               icon={cilSwapHorizontal}
               style={{ cursor: 'pointer' }}
               title="Habilitar y deshabilitar"
             />
           </CButton>
 
-          <CButton onClick={()=>{
+          <CButton size='sm' onClick={()=>{
             setSetSelected(set);
             setIsOpenModalSet(true);
           }} style={{ border: '.3px solid #007bff' }}>
-            <CIcon size="lg" icon={cilPencil} style={{ cursor: 'pointer' }} title="Editar" />
+            <CIcon size="sm" icon={cilPencil} style={{ cursor: 'pointer' }} title="Editar" />
           </CButton>
         </div>
       </td>
