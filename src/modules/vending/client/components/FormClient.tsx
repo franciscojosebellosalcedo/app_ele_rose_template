@@ -236,22 +236,15 @@ const FormClient : FC<Props> = ({
     validationSchema: schemaValidation,
     onSubmit: async (values : IClient)=>{
 
-      if(listAddress.length === 0){
+      if(params.id){
 
-        toast.info("Por favor agregue por lo menos una dirección para este cliente");
+        await updateClientById(values);
 
       }else{
 
-        if(params.id){
-
-          await updateClientById(values);
-
-        }else{
-
-          await saveClient(values);
-        }
-
+        await saveClient(values);
       }
+
     }
   });
 
