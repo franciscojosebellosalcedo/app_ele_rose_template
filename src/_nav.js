@@ -40,6 +40,12 @@ const _nav = [
         to: '/vending/client',
       },
 
+      {
+        component: CNavItem,
+        name: 'Pedidos',
+        to: '/vending/pedidos',
+      },
+
 
     ],
   },

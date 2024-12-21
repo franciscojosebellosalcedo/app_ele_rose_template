@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import { IClientModel } from '../../../../models/models'
 import { CButton } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
-import { cilPencil } from '@coreui/icons'
+import { cilPencil, cilSwapHorizontal } from '@coreui/icons'
 import { useNavigate } from 'react-router-dom'
 
 type Props ={
@@ -38,21 +38,18 @@ const ClientItem : FC<Props>= ({
       </td>
 
       <td>
-          <div className='d-flex justify-content-start flex-column'>
-            <div  className=' text-hover-primary mb-1 fs-6'>
-            {
-              client.email
-            }
-            </div>
-          </div>
-      </td>
-
-      <td>
         <span className={`text-${client.status ? "primary": "danger"}`}>{client.status ? "Activo": "Inactivo"}</span>
       </td>
 
       <td>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'flex-end' }}>
+
+
+          <CButton size='sm' onClick={()=>{
+
+          }} style={{ border: '.3px solid #007bff' }}>
+            <CIcon size="sm" icon={cilSwapHorizontal} style={{ cursor: 'pointer' }} title="Deshabilitar" />
+          </CButton>
 
           <CButton size='sm' onClick={()=>{
             navigate(`/vending/client/editClient/${client._id}`);

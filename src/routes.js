@@ -1,5 +1,4 @@
 import React from 'react'
-
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Category = React.lazy(() => import('./modules/vending/category/components/Category'))
 const Set = React.lazy(() => import('./modules/vending/set/components/Set'))
@@ -7,6 +6,8 @@ const Product = React.lazy(()=> import("./modules/vending/product/components/Pro
 const FormProduct = React.lazy(()=> import("./modules/vending/product/components/FormProduct"))
 const FormClient = React.lazy(()=> import("./modules/vending/client/components/FormClient"))
 const Client = React.lazy(()=> import("./modules/vending/client/components/Client"))
+const Order = React.lazy(()=> import("./modules/vending/order/components/Order"))
+const FormOrder = React.lazy(()=> import("./modules/vending/order/components/FormOrder"))
 
 const routes = [
 
@@ -28,6 +29,9 @@ const routes = [
   { path: '/vending/client/createClient', name: 'Crear cliente', element: FormClient },
 
   { path: '/vending/client/editClient/:id', name: 'Editar cliente', element: FormClient },
+
+  { path: '/vending/pedidos', name: 'Pedidos', element: Order },
+  { path: '/vending/order/createOrder', name: 'Crear pedido', element: FormOrder },
 
 ]
 

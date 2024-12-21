@@ -2,19 +2,20 @@ import { CButton, CCol, CForm, CFormInput, CFormSelect, CRow, CSpinner } from "@
 import clsx from "clsx";
 import { useFormik } from "formik";
 import React, { FC, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import * as Yup from "yup";
+import { ORDER_ADDRESS_ENTITY } from "../../../../config";
+import { addClient, setClient } from "../../../../features/client/clientSlice";
 import TableAddress from "../../../../global/components/TableAddress";
+import { AddressService } from "../../../../global/services/address.service";
 import ContainerContent from "../../../../helpers/ContainerContent";
-import { IAddresModel, IClient, IClientModel, IResponseHttp, IUserModel } from "../../../../models/models";
+import { IAddresModel, IClient, IClientModel, IDataGrouperClientModel, IResponseHttp, IUserModel } from "../../../../models/models";
 import { colorRedInfoInput } from "../../../../utils";
 import { ClientService } from "../client.service";
-import { ORDER_ADDRESS_ENTITY } from "../../../../config";
-import { toast } from "sonner";
-import { AddressService } from "../../../../global/services/address.service";
-import { useSelector } from "react-redux";
-import { useDispatch } from "react-redux";
-import { addClient, setClient } from "../../../../features/client/clientSlice";
+import { GrouperClientService } from "../grouperClient.service";
+import TableGrouperClient from "./grouperClient/TableGrouperClient";
 
 const schemaValidation = Yup.object().shape({
   name: Yup.string()
@@ -26,16 +27,6 @@ const schemaValidation = Yup.object().shape({
   )
   .min(3, "Mínimo 3 caracteres"),
 
-  email: Yup.string()
-  .email("Email no válido")
-  .required("Se requiere el email del cliente")
-  .test(
-    'no-espacios-solo',
-    'Se requiere el email del cliente',
-    (value) => value.trim().length > 0
-  )
-  .min(5 , "Mínimo 5 caracteres"),
-
   phone: Yup.string()
   .required("Se requiere télefono del cliente")
   .min(10, "Mínimo 10 caracteres")
@@ -43,12 +34,12 @@ const schemaValidation = Yup.object().shape({
   .max(10, "Máximo 10 caracteres"),
 
   status: Yup.number()
-    .required('Se require el status')
-    .test('is-number', 'Valor no válido', (value) => {
-      if (Number.isInteger(value)) return true
-      if (!value) return false
-      return isNaN(value)
-    }),
+  .required('Se require el status')
+  .test('is-number', 'Valor no válido', (value) => {
+    if (Number.isInteger(value)) return true
+    if (!value) return false
+    return isNaN(value)
+  }),
 })
 
 type Props ={
@@ -59,6 +50,8 @@ const clientService : ClientService = ClientService.getInstance();
 
 const addressService : AddressService = AddressService.getInstance();
 
+const grouperClientService : GrouperClientService = GrouperClientService.getInstance();
+
 const FormClient : FC<Props> = ({
 
 }) => {
@@ -67,7 +60,6 @@ const FormClient : FC<Props> = ({
 
   const [initialValues, setInitialValues] = useState<IClient>({
     name: "",
-    email: "",
     phone: "",
     status: 1
   });
@@ -86,6 +78,8 @@ const FormClient : FC<Props> = ({
 
   const [clientFound , setClientFound] = useState<IClientModel | null>(null);
 
+  const [groupers , setGroupers] = useState<IDataGrouperClientModel[]>([]);
+
   // get all address with id client
   const getAllAddressWithIdClient = (idClient: any)=>{
 
@@ -99,6 +93,23 @@ const FormClient : FC<Props> = ({
     }
 
     return listAux;
+  }
+
+  // get all groupers with id client created
+  const getAllGroupersWithIdClientCreated = ( idClientCreated : string ) =>{
+
+    const listAux = groupers;
+
+    for (let index = 0; index < listAux.length; index++) {
+
+      const dataGrouper = listAux[index];
+
+      dataGrouper.grouperClient.clientId = idClientCreated;
+
+    }
+
+    return listAux;
+
   }
 
   // save client
@@ -121,6 +132,11 @@ const FormClient : FC<Props> = ({
 
           await addressService.saveListAddress(listAddressWithIdClient , user.accessToken);
 
+          //save all groupers with id client created
+          const listGrupersWithIdClient = getAllGroupersWithIdClientCreated(dataResponse._id);
+
+          await grouperClientService.saveGrouperClient(listGrupersWithIdClient , user.accessToken);
+
           dispatch(addClient(dataResponse));
 
           toast.success(responseHttp.message);
@@ -138,6 +154,40 @@ const FormClient : FC<Props> = ({
 
     setIsLoader(false);
 
+  }
+
+  // get all groupers client by id client
+  const getGrouperClientByIdClient = async (idClient : string ) =>{
+    try {
+
+      if(user.accessToken){
+
+        const responseHttp : IResponseHttp = await grouperClientService.getGrouperClientByIdClient(idClient, user.accessToken);
+
+        if( responseHttp.status === 200 && responseHttp.response ){
+
+          const dataResponse : IDataGrouperClientModel[] = responseHttp.data;
+
+          for (let index = 0; index < dataResponse.length; index++) {
+
+            const dataGrouper = dataResponse[index];
+            dataGrouper.grouperClient.status = dataGrouper.grouperClient.status ? 1 : 0 ;
+
+          }
+
+          setGroupers([...dataResponse]);
+
+        }
+
+      }
+
+    } catch (error : any) {
+
+      toast.error( error.message );
+
+      setGroupers([]);
+
+    }
   }
 
   // update client by id
@@ -158,6 +208,11 @@ const FormClient : FC<Props> = ({
           const listAddressWithIdClient = getAllAddressWithIdClient(dataResponse._id);
 
           await addressService.saveListAddress(listAddressWithIdClient , user.accessToken);
+
+          //save all groupers with id client created
+          const listGrupersWithIdClient = getAllGroupersWithIdClientCreated(dataResponse._id);
+
+          await grouperClientService.saveGrouperClient(listGrupersWithIdClient , user.accessToken);
 
           dispatch(setClient(dataResponse));
 
@@ -195,6 +250,9 @@ const FormClient : FC<Props> = ({
 
           const {_id , updatedAt , createdAt, ...restData} = dataResponse;
 
+          // get all groupers
+          await getGrouperClientByIdClient(_id);
+
           // get all address
           const responseHttpGetAddress : IResponseHttp = await addressService.getAllAddressByEntityAndEntityId(ORDER_ADDRESS_ENTITY.client , _id , user.accessToken);
           if(responseHttpGetAddress.status === 200 && responseHttpGetAddress.response){
@@ -206,7 +264,6 @@ const FormClient : FC<Props> = ({
           }
 
           const data : IClient = {
-            email: restData.email,
             name: restData.name,
             phone: restData.phone,
             status: restData.status ? 1 : 0
@@ -299,35 +356,6 @@ const FormClient : FC<Props> = ({
           <CCol className="mb-4" md="6" xs="12">
 
             <CFormInput
-              label="Email"
-              placeholder="Email de cliente"
-              {...formik.getFieldProps('email')}
-              value={formik.values.email}
-              className={clsx(
-                'form-control',
-                { 'is-invalid': formik.touched.email && formik.errors.email },
-                { 'is-valid': formik.touched.email && !formik.errors.email },
-              )}
-            />
-            {formik.touched.email && formik.errors.email && (
-              <div className="fv-plugins-message-container">
-                <div className="fv-help-block">
-                  <span role="alert" style={{ color: colorRedInfoInput }}>
-                    {formik.errors.email}
-                  </span>
-                </div>
-              </div>
-            )}
-
-          </CCol>
-
-        </CRow>
-
-        <CRow className="mb-3">
-
-          <CCol className="mb-4" md="6" xs="12">
-
-            <CFormInput
               label="Télefono"
               placeholder="Télefono de cliente"
               {...formik.getFieldProps('phone')}
@@ -350,14 +378,49 @@ const FormClient : FC<Props> = ({
 
           </CCol>
 
+          <CCol className="mb-4" md="6" xs="12">
+
+            <CFormSelect
+              label="Status"
+              {...formik.getFieldProps('status')}
+              className={clsx(
+                'form-control',
+                { 'is-invalid': formik.touched.status && formik.errors.status },
+                { 'is-valid': formik.touched.status && !formik.errors.status },
+              )}
+              defaultValue={'1'}
+              options={[
+                { label: 'Inactivo', value: '0' },
+                { label: 'Activo', value: '1' },
+              ]}
+            />
+            {formik.touched.status && formik.errors.status && (
+              <div className="fv-plugins-message-container">
+                <div className="fv-help-block">
+                  <span role="alert" style={{ color: colorRedInfoInput }}>
+                    {formik.errors.status}
+                  </span>
+                </div>
+              </div>
+            )}
+          </CCol>
+
         </CRow>
 
         <TableAddress
+          isOptional = { true }
           entity={ORDER_ADDRESS_ENTITY.client}
           listAddress={listAddress}
           setListAddress={setListAddress}
         />
 
+        <hr />
+        <p>Un cliente puede tener uno o más agrupadores, un agrupador es una persona que se puede beneficiar de un pedido del cliente.</p>
+
+        <TableGrouperClient
+          groupers={ groupers }
+          setGroupers={ setGroupers }
+        />
 
         <div className="d-flex justify-content-end mb-4 mt-2">
           <CButton

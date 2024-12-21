@@ -1,3 +1,41 @@
+// export interface IOrderModel {
+//   _id : string
+//   clienteId : string
+//   total : number
+//   direccion : string
+//   statusId : string
+//   createdAt: Date
+//   updatedAt: Date
+// }
+// export interface IOrder {
+//   clienteId : string
+//   total : number
+// }
+
+// export interface IPartOrderModel{
+//   _id : string
+//   productId : string
+//   amount : number
+//   total : number
+//   createdAt: Date
+//   updatedAt: Date
+// }
+
+
+export interface IGrouperClientModel {
+  _id: string
+  name: string
+  phone: string
+  clientId: string
+  createdAt?: Date
+  updatedAt?: Date
+  status: number
+}
+export interface IDataGrouperClientModel {
+  grouperClient : IGrouperClientModel
+  addressGrouper : IAddresModel[]
+}
+
 export interface IMunicipalityModel{
   _id: string
   departament: string
@@ -28,14 +66,12 @@ export interface IAddresModel{
 
 export interface IClient{
   name: string
-  email: string
   phone: string
   status: number
 }
 export interface IClientModel{
   _id: string
   name: string
-  email: string
   phone: string
   status: boolean
   createdAt: Date

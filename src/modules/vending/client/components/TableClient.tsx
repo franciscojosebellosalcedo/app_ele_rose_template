@@ -205,7 +205,6 @@ const TableClient = () => {
               <CTableRow>
                 <CTableHeaderCell>Nombre</CTableHeaderCell>
                 <CTableHeaderCell>Télefono</CTableHeaderCell>
-                <CTableHeaderCell>Email</CTableHeaderCell>
                 <CTableHeaderCell>Status</CTableHeaderCell>
                 <CTableHeaderCell></CTableHeaderCell>
               </CTableRow>

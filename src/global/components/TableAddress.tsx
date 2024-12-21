@@ -15,6 +15,7 @@ type Props ={
   listAddress: IAddresModel[]
   setListAddress: Function
   entity: number
+  isOptional: boolean
 }
 
 const schemaValidation = Yup.object().shape({
@@ -50,7 +51,8 @@ const schemaValidation = Yup.object().shape({
 const TableAddress : FC<Props> = ({
   listAddress,
   setListAddress,
-  entity
+  entity,
+  isOptional
 }) => {
 
   const [isOpenModal , setIsOpenModal] = useState<boolean>(false);
@@ -356,7 +358,7 @@ const TableAddress : FC<Props> = ({
             setIsOpenModal(true);
           }}>
             <CIcon icon={cilPlus} className="mr-2" />
-            Nueva dirección
+            Nueva dirección {isOptional ? "(Opcional)" : ""}
           </CButton>
         </CCol>
       </div>

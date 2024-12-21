@@ -15,6 +15,74 @@ export const compressImage = async (file: any) => {
 
 }
 
+// format date
+export const formatDate = (dateString : string) => {
+
+  if (dateString) {
+
+    const [datePart] = dateString.split('T');
+    const [year, month, day] = datePart.split('-');
+
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+
+  } else {
+
+    return "";
+
+  }
+}
+
+// formated date short
+export const formatDateShort = (date: Date | string | undefined) => {
+
+  if(date){
+
+    let formattedDay : any = null;
+    let formattedMonth : any = null;
+    let formattedYear : any = null;
+
+    const months = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+    if(typeof date === "object"){
+
+      formattedDay  = date.getDate();
+      formattedMonth  = months[date.getMonth()];
+      formattedYear  = date.getFullYear() % 100;
+
+      if (formattedDay < 10) {
+        formattedDay = '0' + formattedDay;
+      }
+
+      if (formattedYear < 10) {
+        formattedYear = '0' + formattedYear;
+      }
+
+    }else{
+
+      const [year, month, day] = date.split('-').map(Number);
+
+      formattedDay = day;
+      formattedYear= year % 100;
+      formattedMonth = months[month - 1];
+
+      if (formattedDay < 10) {
+        formattedDay = '0' + formattedDay;
+      }
+
+      if (formattedYear < 10) {
+        formattedYear = '0' + formattedYear;
+      }
+
+      return `${formattedDay}-${formattedMonth}-${year}`;
+    }
+
+  }
+
+  return `${""}-${""}-${""}`;
+
+
+}
+
 //if content character
 export const regexIsContentCharacter= /\S/;
 
