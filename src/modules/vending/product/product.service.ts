@@ -19,7 +19,7 @@ export class ProductService {
     return ProductService.instance
   }
 
-  async saveProduct( values: {product: IProduct, listImagen: IProductImagen [], listVariants: IDataVariantModel[]} , token: string) {
+  async saveProduct( values: {product: IProduct, listImagen: IProductImagen [] } , token: string) {
     const { listImagen , ...restData} = values.product;
     values.product = restData;
     const response = await this.request.post(this.textUrl, values, token);
@@ -42,7 +42,7 @@ export class ProductService {
     return response;
   }
 
-  async updateProductById( id: string , values: { product: IProduct, listImagen: IProductImagen [], listVariants: IDataVariantModel[], listRemovedVariants: string[], listRemovedImagens: string[] } , token:string){
+  async updateProductById( id: string , values: { product: IProduct, listImagen: IProductImagen [],  listRemovedImagens: string[] } , token:string){
     const response= await this.request.put(this.textUrl + `/${id}`, values, token);
     return response;
   }

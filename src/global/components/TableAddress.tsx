@@ -14,8 +14,10 @@ import { colorRedInfoInput, getOptionsInputSelect } from '../../utils'
 type Props ={
   listAddress: IAddresModel[]
   setListAddress: Function
+  setIsOpenModal: Function
   entity: number
   isOptional: boolean
+  isOpenModal: boolean
 }
 
 const schemaValidation = Yup.object().shape({
@@ -52,10 +54,10 @@ const TableAddress : FC<Props> = ({
   listAddress,
   setListAddress,
   entity,
-  isOptional
+  isOptional,
+  isOpenModal,
+  setIsOpenModal
 }) => {
-
-  const [isOpenModal , setIsOpenModal] = useState<boolean>(false);
 
   const departaments : IDepartamentModel[] = useSelector((state: any) => state.departament.data.list);
 
@@ -120,7 +122,7 @@ const TableAddress : FC<Props> = ({
 
   }
 
-  const sendForm = (e: React.MouseEvent)=>{
+  const sendForm = (e: any)=>{
     e.preventDefault();
     formik.submitForm();
 
@@ -185,7 +187,30 @@ const TableAddress : FC<Props> = ({
 
     }
 
-  },[addresSelected])
+  },[addresSelected]);
+
+  const handleFormKeyPress = (e : KeyboardEvent) => {
+
+    if (e.key === 'Enter' && isOpenModal === true) {
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      sendForm(e);
+
+    }
+
+  };
+
+  useEffect(() => {
+
+    window.addEventListener("keydown", handleFormKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleFormKeyPress);
+    };
+
+  }, [isOpenModal , formik]);
 
   return (
     <div className="table-responsive" style={{ position: 'relative' }}>

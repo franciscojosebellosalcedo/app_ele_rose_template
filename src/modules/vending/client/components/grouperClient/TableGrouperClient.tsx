@@ -9,14 +9,17 @@ import GrouperClientItem from "./GrouperClientItem";
 type Props = {
   groupers : IDataGrouperClientModel[],
   setGroupers: Function
+  isOpenModal : boolean
+  setIsOpenModal: Function
 }
 
 const TableGrouperClient : FC<Props> = ({
   groupers,
-  setGroupers
+  setGroupers,
+  isOpenModal,
+  setIsOpenModal
 }) => {
 
-  const [isOpenModal , setIsOpenModal] = useState(false);
 
   const [grouperSelected , setGrouperSelected] = useState<IDataGrouperClientModel | null>(null);
 

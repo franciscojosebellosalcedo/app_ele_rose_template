@@ -21,6 +21,45 @@
 //   updatedAt: Date
 // }
 
+export interface ITypeSupplierModel {
+  _id?: string
+  name: string
+  status: number | boolean
+  createdAt?: Date
+  updatedAt?: Date
+}
+export interface ISupplierModel {
+  _id: string
+  name: string
+  email: string
+  phone: string
+  typeId: string
+  status: boolean
+  createdAt?: Date
+  updatedAt?: Date
+}
+export interface ISupplier {
+  name: string
+  email: string
+  phone: string
+  typeId: string
+  status: number
+}
+
+export interface IPaymentShape{
+  _id: string
+  name:string
+  status: boolean
+  createdAt: Date
+  updatedAt: Date
+}
+export interface IConditionPayment{
+  _id: string
+  name:string
+  status: boolean
+  createdAt: Date
+  updatedAt: Date
+}
 
 export interface IGrouperClientModel {
   _id: string
@@ -107,45 +146,31 @@ export interface IDataInputSelect{
 export interface IProduct{
   name: string
   description: string
-  set: string
-  category: string
-  amount: number
-  percentage: number
-  realPrice: number
-  pricePromotion: number
-  available:  number
+  setId: string
+  categoryId: string
+  price: number
+  amount:  number
   existence: number
-  haveDiscount: boolean
-  typeVariant: string
   cost: number
-  haveVariant: boolean
   status: number
 
   listImagen?: IProductImagen[]
-  listVariants?: IDataVariantModel[]
 }
 export interface IProductModel{
   _id: string
   name: string
   description: string
-  set: string
-  category: string
-  amount: number
-  percentage: number
-  realPrice: number
-  pricePromotion: number
-  available:  number
-  haveDiscount: boolean
+  setId: string
+  categoryId: string
+  price: number
+  amount:  number
   existence: number
   cost: number
-  haveVariant: boolean
-  typeVariant: string
   status: boolean
   createdAt: Date
   updatedAt: Date
 
   listImagen ? : IProductImagen []
-  listVariants ? : IDataVariantModel []
 
 }
 

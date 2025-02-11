@@ -58,6 +58,10 @@ const FormClient : FC<Props> = ({
 
   const params = useParams();
 
+  const [isOpenModalAddress , setIsOpenModalAddress] = useState<boolean>(false);
+
+  const [isOpenModalGroupe , setIsOpenModalGroupe] = useState<boolean>(false);
+
   const [initialValues, setInitialValues] = useState<IClient>({
     name: "",
     phone: "",
@@ -306,7 +310,7 @@ const FormClient : FC<Props> = ({
   });
 
   // send form
-  const sendForm = (e: React.MouseEvent)=>{
+  const sendForm = (e: any)=>{
     e.preventDefault();
     formik.submitForm();
   }
@@ -316,6 +320,29 @@ const FormClient : FC<Props> = ({
     getClientById();
 
   },[user]);
+
+  const handleFormKeyPress = (e : KeyboardEvent) => {
+
+    if (e.key === 'Enter' && isLoader === false && isOpenModalAddress === false && isOpenModalGroupe === false) {
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      sendForm(e);
+
+    }
+
+  };
+
+  useEffect(() => {
+
+    window.addEventListener("keydown", handleFormKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleFormKeyPress);
+    };
+
+  }, [isOpenModalAddress , isOpenModalGroupe, isLoader , formik]);
 
   return (
     isLoaderGet ?
@@ -408,6 +435,8 @@ const FormClient : FC<Props> = ({
         </CRow>
 
         <TableAddress
+          isOpenModal = { isOpenModalAddress }
+          setIsOpenModal={ setIsOpenModalAddress}
           isOptional = { true }
           entity={ORDER_ADDRESS_ENTITY.client}
           listAddress={listAddress}
@@ -418,6 +447,8 @@ const FormClient : FC<Props> = ({
         <p>Un cliente puede tener uno o más agrupadores, un agrupador es una persona que se puede beneficiar de un pedido del cliente.</p>
 
         <TableGrouperClient
+          isOpenModal = {isOpenModalGroupe}
+          setIsOpenModal={ setIsOpenModalGroupe }
           groupers={ groupers }
           setGroupers={ setGroupers }
         />

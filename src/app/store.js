@@ -10,6 +10,10 @@ import typeVariantReducer from "../features/typeVariant/typeVariantSlice";
 import clientReducer from "../features/client/clientSlice";
 import departamentReducer from "../features/departament/departamentSlice";
 import municipalityReducer from "../features/municipality/municipalitySlice";
+import conditionPaymentReducer from "../features/conditionPayment/conditionPaymentSlice";
+import paymentShapeReducer from "../features/paymentShape/paymentShapeSlice";
+import supplierReducer from "../features/supplier/supplierSlice";
+import typeSupplierReducer from "../features/typeSupplier/typeSupplierSlice";
 
 export const store = configureStore({
 
@@ -36,6 +40,14 @@ export const store = configureStore({
     departament: departamentReducer,
 
     municipality: municipalityReducer,
+
+    conditionPayment: conditionPaymentReducer,
+
+    paymentShape: paymentShapeReducer,
+
+    supplier: supplierReducer,
+
+    typeSupplier: typeSupplierReducer,
 
   },
 })

@@ -43,10 +43,39 @@ const _nav = [
       {
         component: CNavItem,
         name: 'Pedidos',
-        to: '/vending/pedidos',
+        to: '/vending/order',
       },
 
+    ],
+  },
 
+  {
+    component: CNavGroup,
+    name: 'Compras',
+    to: '/shopping',
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
+    items: [
+
+      {
+        component: CNavItem,
+        name: 'Proveedores',
+        to: '/shopping/supplier',
+      },
+
+    ],
+  },
+
+  {
+    component: CNavGroup,
+    name: 'Inventario',
+    to: '/inventory',
+    icon: <CIcon icon={cilCart} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Almacenes',
+        to: '/inventory/warehouse',
+      },
     ],
   },
 

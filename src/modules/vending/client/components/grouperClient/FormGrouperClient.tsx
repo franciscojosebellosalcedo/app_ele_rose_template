@@ -65,6 +65,8 @@ const FormGrouperClient : FC<Props> = ({
 
   const [address , setAddress] = useState<IAddresModel[]>([]);
 
+  const [isOpenModalAddress , setIsOpenModalAddress] = useState(false);
+
   // validate if have grouper exist by phone
   const validateIfExistGrouperByPhone = (grouper : IGrouperClientModel) =>{
 
@@ -170,6 +172,12 @@ const FormGrouperClient : FC<Props> = ({
 
   });
 
+  const sendForm = (e: any) =>{
+
+    formik.submitForm();
+
+  }
+
   useEffect(()=>{
 
     const group = grouperSelected?.grouperClient;
@@ -197,6 +205,29 @@ const FormGrouperClient : FC<Props> = ({
     }
 
   },[grouperSelected , indexSelected]);
+
+  const handleFormKeyPress = (e : KeyboardEvent) => {
+
+    if (e.key === 'Enter' && isOpenModal === true && isOpenModalAddress === false ) {
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      sendForm(e);
+
+    }
+
+  };
+
+  useEffect(() => {
+
+    window.addEventListener("keydown", handleFormKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleFormKeyPress);
+    };
+
+  }, [isOpenModal , isOpenModalAddress , formik]);
 
   return (
     <CModal
@@ -294,6 +325,8 @@ const FormGrouperClient : FC<Props> = ({
           </CForm>
 
           <TableAddress
+            isOpenModal= { isOpenModalAddress}
+            setIsOpenModal={ setIsOpenModalAddress}
             isOptional= { false }
             entity={ORDER_ADDRESS_ENTITY.groupClient}
             listAddress={ address }
@@ -326,7 +359,7 @@ const FormGrouperClient : FC<Props> = ({
 
               e.preventDefault();
 
-              formik.submitForm();
+              sendForm(e);
 
             }}
             color="primary"

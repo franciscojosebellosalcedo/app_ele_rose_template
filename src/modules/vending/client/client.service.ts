@@ -1,4 +1,4 @@
-import { IClient } from '../../../models/models'
+import { IClient, IClientModel } from '../../../models/models'
 import { FecthRequestModel } from '../../../models/request.model'
 
 export class ClientService {
@@ -22,6 +22,12 @@ export class ClientService {
   async saveClient( values: IClient, token: string) {
     const response = await this.request.post(this.textUrl, values, token);
     return response
+  }
+
+  async changeStatusClient( client: IClientModel , token:string ){
+    const text=`${this.textUrl}/${client.status=== true ? 'disable':'enable'}/${client._id}`;
+    const response= await this.request.put(text,null,token);
+    return response;
   }
 
   async search( value : string, token:string){

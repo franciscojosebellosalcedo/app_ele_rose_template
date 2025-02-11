@@ -7,24 +7,24 @@ const initialState = {
   },
 }
 
-export const clientSlice = createSlice({
-  name: 'client',
+export const supplierSlice = createSlice({
+  name: 'supplier',
   initialState,
   reducers: {
 
-    setAllClientFound: (state, action) => {
+    setAllSupplierFound: (state, action) => {
       state.data.found = action.payload
     },
 
-    setAllClients: (state, action) => {
+    setAllSuppliers: (state, action) => {
       state.data.list = action.payload
     },
 
-    addClient: (state, action) => {
+    addSupplier: (state, action) => {
       state.data.list = [action.payload, ...state.data.list]
     },
 
-    setClient: (state, action) => {
+    setSupplier: (state, action) => {
       const list = state.data.list
       const index = state.data.list.findIndex((client) => client._id === action.payload._id)
       list[index] = action.payload
@@ -39,6 +39,6 @@ export const clientSlice = createSlice({
   },
 })
 
-export const { setAllClients, setAllClientFound, addClient , setClient } = clientSlice.actions;
+export const { setAllSuppliers, setAllSupplierFound, addSupplier , setSupplier } = supplierSlice.actions;
 
-export default clientSlice.reducer;
+export default supplierSlice.reducer;

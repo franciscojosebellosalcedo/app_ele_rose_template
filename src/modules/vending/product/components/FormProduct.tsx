@@ -1,15 +1,13 @@
-import { cilPlus, cilTrash, cilX } from '@coreui/icons'
+import { cilPlus, cilX } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import {
   CButton,
   CCol,
   CForm,
-  CFormCheck,
   CFormInput,
   CFormSelect,
   CFormTextarea,
   CImage,
-  CListGroupItem,
   CRow,
   CSpinner
 } from '@coreui/react'
@@ -20,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as Yup from 'yup'
+import Autocomplete from '../../../../components/AutoComplete'
 import { addProduct, setProduct } from '../../../../features/product/productSlice'
 import ContainerContent from '../../../../helpers/ContainerContent'
 import {
@@ -42,11 +41,11 @@ import {
   convertFileToBase64,
   getOptionsInputSelect,
   handleSubmitFileUploadcare,
+  stylesElementAbsolute,
 } from '../../../../utils'
 import FormCategory from '../../category/components/FormCategory'
 import FormSet from '../../set/components/FormSet'
 import { ProductService } from '../product.service'
-import Autocomplete from '../../../../components/AutoComplete'
 
 const schemaValidation = Yup.object().shape({
   name: Yup.string().required('Se requiere el nombre del producto').min(5, 'Mínimo 5 caracteres')
@@ -56,36 +55,18 @@ const schemaValidation = Yup.object().shape({
     (value) => value.trim().length > 0
   ),
 
-  category: Yup.string().required('Se require la categoría'),
+  categoryId: Yup.string().required('Se require la categoría'),
 
-  haveVariant: Yup.boolean().optional(),
-
-  haveDiscount: Yup.boolean().optional(),
+  setId: Yup.string().optional(),
 
   amount: Yup.number()
     .min(1, 'La cantidad debe ser mayor a 0')
     .integer('La cantidad debe ser un número entero')
     .required('Se requiere la cantidad '),
 
-  realPrice: Yup.number()
+  price: Yup.number()
     .min(0.1, 'El precio debe ser mayor a 0')
     .required('Se requiere el precio '),
-
-  pricePromotion: Yup.number()
-  .optional()
-  .min(0, 'El precio descuento no puede ser negativo')
-  .test(
-    'is-less-than-realPrice',
-    'El precio descuento no puede ser mayor al precio real',
-    function (value) {
-      const { realPrice } = this.parent;
-      return value === undefined || value <= realPrice;
-    }
-  ),
-
-  percentage: Yup.number()
-    .min(0, 'El porcentaje no puede ser negativo')
-    .optional(),
 
   cost: Yup.number().min(0.1, 'El costo debe ser mayor a 0').required('Se requiere el costo '),
 
@@ -134,22 +115,9 @@ const FormProduct = () => {
 
   const [isOpenModalSet, setIsOpenModalSet] = useState<boolean>(false)
 
-  const [optionsTypesVariants, setOptionsTypesVariants] = useState<IDataInputSelect[]>([])
-
-  const [listOptionsValueVariant, setListOptionsValueVariant] = useState<IDataInputSelect[]>([])
-
   const colors: IColorModel[] = useSelector((state: any) => state.color.data.list)
 
   const sizes: ISizeModel[] = useSelector((state: any) => state.size.data.list)
-
-  const [listVariantsProduct, setListVariantsProduct] = useState<IDataVariantModel[]>([
-    { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
-    { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
-  ])
-
-  const [openConfirm, setOpenConfirm] = useState<boolean>(false);
-
-  const [isErrorTypeVariant , setIsErrorTypeVariant] = useState<boolean>(false);
 
   const params = useParams();
 
@@ -159,26 +127,17 @@ const FormProduct = () => {
 
   const [listRemovedImagens , setListRemovedImagens] = useState<string[]>([]);
 
-  const [listRemovedVariant, setListRemovedVariant] = useState<string[]>([]);
-
   const [initialValues , setInitialValues] = useState<IProduct>({
     name: '',
     description: '',
     amount: 0,
-    available: 0,
-    category: '',
-    haveDiscount: false,
+    categoryId: '',
     cost: 0,
     existence: 0,
-    haveVariant: false,
-    percentage: 0,
-    pricePromotion: 0,
-    realPrice: 0,
-    typeVariant: "",
-    set: '',
+    price: 0,
+    setId: '',
     status: 1,
     listImagen: [],
-    listVariants: [],
   })
 
   // hand ler list imagen
@@ -225,92 +184,8 @@ const FormProduct = () => {
     setIsLoaderImagens(false)
   }
 
-  // handler delete variant
-  const handlerDeteleVariant = async (indexValue: number) => {
-    try {
-      if (!openConfirm) {
-        toast(`¿ Desea eliminar esta variante?`, {
-          action: {
-            label: 'Si',
-            onClick: async () => {
-
-              const listAux = listVariantsProduct;
-              const listremovedVariantAux = listRemovedVariant;
-
-              const variantFound = listAux[indexValue];
-
-              if(variantFound._id){
-
-                listremovedVariantAux.push(variantFound._id);
-
-              }
-
-              setListRemovedVariant([...listremovedVariantAux]);
-
-              setListVariantsProduct([...listAux.filter((_, index) => index !== indexValue)])
-              setOpenConfirm(false)
-            },
-          },
-
-          cancel: {
-            label: 'No',
-            onClick: () => {
-              setOpenConfirm(false)
-            },
-          },
-
-          onAutoClose: () => {
-            setOpenConfirm(false)
-          },
-
-          onDismiss: () => {
-            setOpenConfirm(false)
-          },
-        })
-
-        setOpenConfirm(true)
-      }
-    } catch (error: any) {
-      toast.error(error.message)
-    }
-  }
-
-  // add list delete variant
-  const addListDeletevariant = ()=>{
-    const listRemovedVariant = [];
-
-    for (let index = 0; index < listVariantsProduct.length; index++) {
-      const variant = listVariantsProduct[index];
-
-      if( variant._id !== undefined && variant._id !== null ){
-        listRemovedVariant.push(variant._id);
-      }
-
-    }
-
-    setListRemovedVariant([...listRemovedVariant]);
-
-  }
-
-  // handler add new variant
-  const handlerAddNewVariant = () => {
-    const listAux = listVariantsProduct
-
-    const newVariant: IDataVariantModel = {
-      _id: '',
-      amount: 0,
-      product: '',
-      typeVariant: '',
-      valueVariant: '',
-    }
-
-    listAux.push(newVariant);
-
-    setListVariantsProduct([...listAux])
-  }
-
   // handler delete imagen
-  const handleDelete = (indexImagen: number) => {
+  const handleDeleteImage = (indexImagen: number) => {
     const imagenFound = listImagen[indexImagen];
     const listRemovedImagensAux = listRemovedImagens;
 
@@ -326,94 +201,47 @@ const FormProduct = () => {
     setListImagen(listImagen.filter((_, i) => i !== indexImagen))
   }
 
-  //calculate sum amount variante and amount product
-  const isAmountCorrect = ()=>{
-
-    let amount = 0;
-
-    for (let index = 0; index < listVariantsProduct.length; index++) {
-      const variant = listVariantsProduct[index];
-      amount += variant.amount;
-    }
-
-    return amount === formik.values.amount;
-
-  }
-
   // create product
   const saveProduct = async (values: IProduct) => {
     setIsLoader(true)
 
     try {
-      values.available = values.amount
-      values.existence = values.amount
 
-      const boolVaidationField = formik.values.haveVariant ===  true && formik.values.typeVariant === "";
+      if (user && listBase64.length > 0) {
+        let listImagenUploadcare: IProductImagen[] = []
 
-      const boolValidation = formik.values.haveVariant && formik.values.typeVariant !== "";
+        for (let index = 0; index < listImagen.length; index++) {
 
-      const validationListVariant = boolValidation && listVariantsProduct.some((variant) => variant.amount <= 0 || variant.valueVariant === "");
+          const imagen = listImagen[index]
 
-      if(boolVaidationField){
+          if(imagen._id === undefined){
 
-        setIsErrorTypeVariant(true);
+            const idUpload = await handleSubmitFileUploadcare(imagen)
 
-      }else if(boolValidation && listVariantsProduct.length === 0){
-
-        toast.info("Por favor agregue variantes");
-
-      }else if(validationListVariant){
-
-        toast.info("Hay campos por llenar en la variantes o valores");
-
-      }else if(listVariantsProduct.some((variant) => variant.amount < 0)){
-
-        toast.info("La cantidad de las variantes no puede ser cero ni negativo");
-
-      }else if(!isAmountCorrect() && listVariantsProduct.length > 0 && boolValidation){
-
-        toast.info("Ajuste las cantidades de las variantes a la cantidad del producto");
-
-      }
-      else{
-
-        if (user && listBase64.length > 0) {
-          let listImagenUploadcare: IProductImagen[] = []
-
-          for (let index = 0; index < listImagen.length; index++) {
-
-            const imagen = listImagen[index]
-
-            if(imagen._id === undefined){
-
-              const idUpload = await handleSubmitFileUploadcare(imagen)
-
-              listImagenUploadcare.push({
-                idUpload: idUpload,
-                imagen: `https://ucarecdn.com/${idUpload}/`,
-                product: '',
-              })
-
-            }
+            listImagenUploadcare.push({
+              idUpload: idUpload,
+              imagen: `https://ucarecdn.com/${idUpload}/`,
+              product: '',
+            })
 
           }
 
-          const responseHttp: IResponseHttp = await productService.saveProduct(
-            { product: values, listImagen: listImagenUploadcare , listVariants: formik.values.haveVariant ? listVariantsProduct : []},
-            user.accessToken,
-          )
-
-          if (responseHttp.status === 201 && responseHttp.response) {
-            const dataResponse: IProductModel = responseHttp.data
-
-            dispatch(addProduct(dataResponse))
-
-            toast.success(responseHttp.message)
-
-            navigate('/vending/product')
-          }
         }
 
+        const responseHttp: IResponseHttp = await productService.saveProduct(
+          { product: values, listImagen: listImagenUploadcare },
+          user.accessToken,
+        )
+
+        if (responseHttp.status === 201 && responseHttp.response) {
+          const dataResponse: IProductModel = responseHttp.data
+
+          dispatch(addProduct(dataResponse))
+
+          toast.success(responseHttp.message)
+
+          navigate('/vending/product')
+        }
       }
 
     } catch (error: any) {
@@ -430,90 +258,60 @@ const FormProduct = () => {
 
     try {
 
-      values.available = values.amount
-      values.existence = values.amount
+      const idProduct = params.id;
 
-      const boolVaidationField = formik.values.haveVariant ===  true && formik.values.typeVariant === "";
+      if (user && listBase64.length > 0 && idProduct) {
 
-      const boolValidation = formik.values.haveVariant && formik.values.typeVariant !== "";
+        let listImagenUploadcare: IProductImagen[] = []
 
-      const validationListVariant = boolValidation && listVariantsProduct.some((variant) => variant.amount <= 0 || variant.valueVariant === "");
+        for (let index = 0; index < listImagen.length; index++) {
 
-      if(boolVaidationField){
+          const imagen = listImagen[index]
 
-        setIsErrorTypeVariant(true);
+          const bool = imagen._id === undefined;
 
-      }else if(boolValidation && listVariantsProduct.length === 0){
+          if(bool){
 
-        toast.info("Por favor agregue variantes");
+            const idUpload = await handleSubmitFileUploadcare(imagen)
 
-      }else if(validationListVariant){
-
-        toast.info("Hay campos por llenar en la variantes");
-
-      }else if(listVariantsProduct.some((variant) => variant.amount < 0)){
-
-        toast.info("La cantidad de las variantes no puede ser cero ni negativo");
-
-      }else if(!isAmountCorrect() && listVariantsProduct.length > 0 && boolValidation){
-
-        toast.info("Ajuste las cantidades de las variantes a la cantidad del producto");
-
-      }else{
-
-        const idProduct = params.id;
-
-        if (user && listBase64.length > 0 && idProduct) {
-
-          let listImagenUploadcare: IProductImagen[] = []
-
-          for (let index = 0; index < listImagen.length; index++) {
-
-            const imagen = listImagen[index]
-
-            const bool = imagen._id === undefined;
-
-            if(bool){
-
-              const idUpload = await handleSubmitFileUploadcare(imagen)
-
-              listImagenUploadcare.push({
-                idUpload: idUpload,
-                imagen: `https://ucarecdn.com/${idUpload}/`,
-                product: '',
-              })
-
-            }
+            listImagenUploadcare.push({
+              idUpload: idUpload,
+              imagen: `https://ucarecdn.com/${idUpload}/`,
+              product: '',
+            })
 
           }
 
-          const responseHttp: IResponseHttp = await productService.updateProductById(
-            idProduct,
-            { product: values,
-              listImagen: listImagenUploadcare ,
-              listVariants: formik.values.haveVariant ? listVariantsProduct : [],
-              listRemovedImagens: listRemovedImagens,
-              listRemovedVariants: listRemovedVariant
-            },
-            user.accessToken,
-          )
+        }
 
-          if (responseHttp.status === 200 && responseHttp.response) {
-            const dataResponse: IProductModel = responseHttp.data
+        const responseHttp: IResponseHttp = await productService.updateProductById(
+          idProduct,
+          { product: values,
+            listImagen: listImagenUploadcare ,
+            listRemovedImagens: listRemovedImagens,
+          },
+          user.accessToken,
+        )
 
-            dispatch(setProduct(dataResponse))
+        if (responseHttp.status === 200 && responseHttp.response) {
+          const dataResponse: IProductModel = responseHttp.data
 
-            toast.success(responseHttp.message)
+          dispatch(setProduct(dataResponse))
 
-            navigate('/vending/product')
-          }
+          toast.success(responseHttp.message)
+
+          navigate('/vending/product')
         }
       }
 
     } catch (error : any) {
+
       toast.error(error.message);
+
     }
+
     setIsLoader(false);
+
   }
 
   const formik = useFormik({
@@ -535,7 +333,7 @@ const FormProduct = () => {
   })
 
   // send form
-  const sendForm = (e: React.MouseEvent) => {
+  const sendForm = (e: any) => {
     e.preventDefault()
 
     if (
@@ -546,69 +344,8 @@ const FormProduct = () => {
       setIsErrorFiles(true);
 
     }
-    if(formik.values.haveVariant === true && formik.values.typeVariant === ""){
 
-      setIsErrorTypeVariant(true);
-
-    }
-
-    formik.submitForm()
-  }
-
-  const stylesElementAbsolute: CSSProperties = {
-    position: 'absolute',
-    top: 14,
-    right: -8,
-    height: 28,
-    width: 28,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: '50%',
-    cursor: 'pointer',
-    backgroundColor: '#3498db',
-    zIndex: 99
-  }
-
-  // calculate price promotion
-  const calculatePricePromotion = (percentage: number) => {
-
-    if(formik.values.haveDiscount === false){
-
-      formik.setFieldValue("pricePromotion", 0);
-
-    }else{
-
-      if(formik.values.realPrice > 0 ){
-
-        const pricePromotion = formik.values.realPrice - (formik.values.realPrice * (percentage / 100));
-
-        formik.setFieldValue("pricePromotion", parseFloat(pricePromotion.toFixed(2)));
-
-      }
-
-    }
-
-  }
-
-  // calculate percentaje
-  const calculatePercentage = (pricePromotion: number) => {
-
-    if(formik.values.haveDiscount === false){
-
-    formik.setFieldValue("percentage", 0);
-
-    }else{
-
-      if(formik.values.realPrice > 0){
-
-        const percentage = ((formik.values.realPrice - pricePromotion) / formik.values.realPrice) * 100
-
-        formik.setFieldValue("percentage", parseFloat(percentage.toFixed(2)));
-
-      }
-
-    }
+    formik.submitForm();
 
   }
 
@@ -630,25 +367,16 @@ const FormProduct = () => {
 
           const data = {
             amount: restData.amount,
-            available: restData.available,
-            category: restData.category,
+            categoryId: restData.categoryId,
             cost: restData.cost,
             description: restData.description,
             existence: restData.existence,
-            haveDiscount: restData.haveDiscount,
-            haveVariant: restData.haveVariant,
             name: restData.name,
-            percentage: restData.percentage,
-            pricePromotion: restData.pricePromotion,
-            realPrice: restData.realPrice,
-            set: restData.set,
+            price: restData.price,
+            setId: restData.setId,
             status: restData.status ? 1: 0,
-            typeVariant: restData.typeVariant,
             listImagen: restData.listImagen,
-            listVariants: restData.listVariants
           }
-
-          const listVariants = restData.listVariants ? restData.listVariants : [];
 
           const listImagens = restData.listImagen ? restData.listImagen : [];
 
@@ -657,19 +385,6 @@ const FormProduct = () => {
           for (let index = 0; index < listImagens.length; index++) {
             const imagen = listImagens[index];
             listAux.push(imagen.imagen);
-          }
-
-          if(listVariants.length === 0){
-
-            setListVariantsProduct([
-              { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
-              { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
-            ]);
-
-          }else{
-
-            setListVariantsProduct([...listVariants]);
-
           }
 
           setListBase64(listAux);
@@ -713,17 +428,6 @@ const FormProduct = () => {
     setOptionsCategories(optionscategories)
   }, [categories])
 
-  useEffect(() => {
-    const optionsTypeVariant = getOptionsInputSelect(
-      typesVariants?.filter((typeVariant) => typeVariant.status === true),
-      '_id',
-      ['name'],
-    )
-
-    setOptionsTypesVariants(optionsTypeVariant)
-  }, [typesVariants])
-
-
   useEffect(()=>{
 
     getOneProductById();
@@ -739,26 +443,28 @@ const FormProduct = () => {
 
   },[productFound, initialValues]);
 
-  useEffect(() => {
-    const typeVariantFound = typesVariants.find(
-      (typeVariant) => typeVariant.status === true && typeVariant._id === formik.values.typeVariant,
-    )
-    if (typeVariantFound?.name === 'Color') {
-      const optionsValueItemsVariants = getOptionsInputSelect(
-        colors.filter((color) => color.status === true),
-        '_id',
-        ['name'],
-      )
-      setListOptionsValueVariant(optionsValueItemsVariants)
-    } else if (typeVariantFound?.name === 'Talla') {
-      const optionsValueItemsVariants = getOptionsInputSelect(
-        sizes.filter((size) => size.status === true),
-        '_id',
-        ['name'],
-      )
-      setListOptionsValueVariant(optionsValueItemsVariants)
+  const handleFormKeyPress = (e : KeyboardEvent) => {
+
+    if (e.key === 'Enter' && isLoader === false && isOpenModalCategory === false && isOpenModalSet === false) {
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      sendForm(e);
+
     }
-  }, [formik.values.typeVariant]);
+
+  };
+
+  useEffect(() => {
+
+    window.addEventListener("keydown", handleFormKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleFormKeyPress);
+    };
+
+  }, [isOpenModalCategory , isOpenModalSet, isLoader , formik]);
 
   return (
     isLoaderGet ?
@@ -830,7 +536,7 @@ const FormProduct = () => {
                           borderRadius: '50%',
                           padding: '0.3rem',
                         }}
-                        onClick={() => handleDelete(index)}
+                        onClick={() => handleDeleteImage(index)}
                       >
                         <CIcon icon={cilX} />
                       </CButton>
@@ -889,12 +595,12 @@ const FormProduct = () => {
                 label='Colección (Opcional)'
                 className={clsx(
                   'form-control',
-                  { 'is-invalid': formik.touched.set && formik.errors.set },
-                  { 'is-valid': formik.touched.set && !formik.errors.set },
+                  { 'is-invalid': formik.touched.setId && formik.errors.setId },
+                  { 'is-valid': formik.touched.setId && !formik.errors.setId },
                 )}
                 options={[{ label: 'Seleccionar', value: '' }, ...optionsSets]}
                 isLabelTitle
-                defaultValue={formik.values.set}
+                defaultValue={formik.values.setId}
                 onSelect={(selected)=>{
 
                   formik.setFieldValue("set", selected.value);
@@ -920,24 +626,24 @@ const FormProduct = () => {
                 label='Categoría'
                 className={clsx(
                   'form-select',
-                  { 'is-invalid': formik.touched.category && formik.errors.category },
-                  { 'is-valid': formik.touched.category && !formik.errors.category },
+                  { 'is-invalid': formik.touched.categoryId && formik.errors.categoryId },
+                  { 'is-valid': formik.touched.categoryId && !formik.errors.categoryId },
                 )}
                 options={[{ label: 'Seleccionar', value: '' }, ...optionsCategory]}
                 isLabelTitle
-                defaultValue={formik.values.category}
+                defaultValue={formik.values.categoryId}
                 onSelect={(selected)=>{
 
-                  formik.setFieldValue("category", selected.value);
+                  formik.setFieldValue("categoryId", selected.value);
 
                 }}
               />
             </div>
-            {formik.touched.category && formik.errors.category && (
+            {formik.touched.categoryId && formik.errors.categoryId && (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">
                   <span role="alert" style={{ color: colorRedInfoInput }}>
-                    {formik.errors.category}
+                    {formik.errors.categoryId}
                   </span>
                 </div>
               </div>
@@ -975,19 +681,19 @@ const FormProduct = () => {
               type="number"
               label="Precio"
               placeholder="Precio de producto"
-              {...formik.getFieldProps('realPrice')}
-              value={formik.values.realPrice}
+              {...formik.getFieldProps('price')}
+              value={formik.values.price}
               className={clsx(
                 'form-control',
-                { 'is-invalid': formik.touched.realPrice && formik.errors.realPrice },
-                { 'is-valid': formik.touched.realPrice && !formik.errors.realPrice },
+                { 'is-invalid': formik.touched.price && formik.errors.price },
+                { 'is-valid': formik.touched.price && !formik.errors.price },
               )}
             />
-            {formik.touched.realPrice && formik.errors.realPrice && (
+            {formik.touched.price && formik.errors.price && (
               <div className="fv-plugins-message-container">
                 <div className="fv-help-block">
                   <span role="alert" style={{ color: colorRedInfoInput }}>
-                    {formik.errors.realPrice}
+                    {formik.errors.price}
                   </span>
                 </div>
               </div>
@@ -1059,268 +765,6 @@ const FormProduct = () => {
             </div>
           )}
         </CCol>
-
-        <CFormCheck
-          className="mb-4"
-          label="¿Este producto tiene variante? (Opcional)"
-          checked={formik.values.haveVariant}
-          onChange={(e) => {
-            const value: boolean = e.target.checked;
-
-            if (value === false) {
-
-              addListDeletevariant();
-
-              setIsErrorTypeVariant(false);
-
-              formik.setFieldValue("typeVariant", "");
-              setListOptionsValueVariant([]);
-              setListVariantsProduct([
-                { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
-                { _id: '', amount: 0, product: '', typeVariant: '', valueVariant: '' },
-              ]);
-
-            }else{
-
-              setListRemovedVariant([]);
-
-            }
-
-            formik.setFieldValue('haveVariant', value);
-
-          }}
-        />
-        {formik.values.haveVariant ? (
-          <>
-            <Autocomplete
-              label='Tipo de variante'
-              className={clsx(
-                'form-select mb-3',
-                { 'is-invalid': formik.touched.typeVariant && formik.errors.typeVariant },
-                { 'is-valid': formik.touched.typeVariant && !formik.errors.typeVariant },
-              )}
-              options={[{ label: 'Seleccionar', value: '' }, ...optionsTypesVariants]}
-              isLabelTitle
-              defaultValue={formik.values.typeVariant}
-              onSelect={(selected)=>{
-
-                const value: string = selected.value;
-                formik.setFieldValue("typeVariant", value);
-
-                if(value !== "" && formik.values.haveVariant){
-
-                  setIsErrorTypeVariant(false);
-
-                }else if(value === "" && formik.values.haveVariant){
-
-                  setIsErrorTypeVariant(true);
-
-                }
-
-                const listAux = listVariantsProduct.map((item) => ({
-                  ...item,
-                  valueVariant: '',
-                  typeVariant: value,
-                }))
-
-                setListVariantsProduct(listAux)
-
-              }}
-            />
-            {isErrorTypeVariant === true &&  (
-              <div className="fv-plugins-message-container">
-                <div className="fv-help-block">
-                  <span role="alert" style={{ color: colorRedInfoInput }}>
-                    Se requiere tipo de variante
-                  </span>
-                </div>
-              </div>
-            )}
-          </>
-
-        ) : (
-          ''
-        )}
-
-        {formik.values.haveVariant && formik.values.typeVariant ? (
-          <div className='mb-4'
-          >
-            <div
-              className='mb-3'
-              style={{display:"flex", alignItems: "center", justifyContent: "space-between"}}
-            >
-
-            <h6 className='mt-3'>Variantes</h6>
-            <CButton
-              onClick={()=>{
-                handlerAddNewVariant();
-              }}
-              title='Agregar variante'
-              size='sm'
-              color='primary'
-              style={{borderRadius: "50%", cursor: "pointer",}}
-            >
-              <CIcon style={{color: "white"}} icon={cilPlus}
-              />
-            </CButton>
-            </div>
-            {listVariantsProduct.map((variant: IDataVariantModel, index: number) => (
-              <CListGroupItem
-                key={index}
-                className="d-flex align-item-center justify-content-center gap-4 mb-3"
-              >
-                <Autocomplete
-                label=''
-                className=""
-                options={[{ label: 'Seleccionar', value: '' }, ...listOptionsValueVariant]}
-                isLabelTitle
-                defaultValue={variant.valueVariant}
-                onSelect={(selected)=>{
-
-                  const value = selected.value
-
-                    const listAux = [...listVariantsProduct]
-                    listAux[index].valueVariant = value
-
-                    setListVariantsProduct(listAux)
-
-                }}
-              />
-                <CFormInput
-                  onKeyPress={(e) => {
-                    if (e.key === '.' || e.key === ',' || e.key === '-' || e.key === '+') {
-                      e.preventDefault();
-                    }
-                  }}
-                type="number" placeholder="Cantidad" defaultValue={variant.amount}
-                  onChange={(e)=>{
-
-                    let value = parseInt(e.target.value);
-
-                    if(isNaN(value)){
-                      value = 0;
-                    }
-
-                    const listAux = [...listVariantsProduct]
-                    listAux[index].amount = value
-
-                    setListVariantsProduct(listAux)
-                  }}
-                />
-                <CButton
-                  onClick={() => {
-                    handlerDeteleVariant(index)
-                  }}
-                  title="Eliminar variante"
-                  size="sm"
-                  color="danger"
-                  style={{ borderRadius: '50%', cursor: 'pointer' }}
-                >
-                  <CIcon style={{ color: 'white' }} icon={cilTrash} />
-                </CButton>
-              </CListGroupItem>
-            ))}
-          </div>
-        ) : (
-          ''
-        )}
-
-        <CFormCheck
-          className="mb-4"
-          label="¿Este producto tiene descuento? (Opcional)"
-          checked={formik.values.haveDiscount}
-          onChange={(e) => {
-            const value: boolean = e.target.checked;
-
-            if(value === false){
-              formik.setFieldValue("pricePromotion", 0);
-              formik.setFieldValue("percentage", 0);
-            }
-
-            formik.setFieldValue("haveDiscount", value);
-          }}
-        />
-
-        {
-          formik.values.haveDiscount ?
-          <CRow className="mb-3">
-            <CCol className="mb-4" md="6" xs="12">
-              <CFormInput
-                type="number"
-                label="Precio descuento"
-                placeholder="Precio descuento"
-                onChange={(e)=>{
-
-                  let value = e.target.value;
-
-                  if(isNaN(parseInt(e.target.value))){
-
-                    formik.setFieldValue("pricePromotion", value);
-
-                  }
-
-                  calculatePercentage(parseInt(value));
-
-                  formik.setFieldValue("pricePromotion", value);
-                }}
-                value={formik.values.pricePromotion}
-                className={clsx(
-                  'form-control',
-                  { 'is-invalid': formik.touched.pricePromotion && formik.errors.pricePromotion },
-                  { 'is-valid': formik.touched.pricePromotion && !formik.errors.pricePromotion },
-                )}
-              />
-              {formik.touched.pricePromotion && formik.errors.pricePromotion && (
-                <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">
-                    <span role="alert" style={{ color: colorRedInfoInput }}>
-                      {formik.errors.pricePromotion}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </CCol>
-
-            <CCol className="mb-4" md="6" xs="12">
-              <CFormInput
-                type="number"
-                label="Porcentaje"
-                placeholder="Porcentaje"
-                onChange={(e)=>{
-
-                  let value = e.target.value;
-
-                  if(isNaN(parseInt(e.target.value))){
-
-                    formik.setFieldValue("percentage", value);
-
-                  }
-
-                  calculatePricePromotion(parseInt(value));
-
-                  formik.setFieldValue("percentage", value);
-                }}
-                value={formik.values.percentage}
-                className={clsx(
-                  'form-control',
-                  { 'is-invalid': formik.touched.percentage && formik.errors.percentage },
-                  { 'is-valid': formik.touched.percentage && !formik.errors.percentage },
-                )}
-              />
-              {formik.touched.percentage && formik.errors.percentage && (
-                <div className="fv-plugins-message-container">
-                  <div className="fv-help-block">
-                    <span role="alert" style={{ color: colorRedInfoInput }}>
-                      {formik.errors.percentage}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </CCol>
-
-          </CRow>
-          : ""
-        }
 
         <div className="d-flex justify-content-end mb-4">
           <CButton

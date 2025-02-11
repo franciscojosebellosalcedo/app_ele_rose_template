@@ -60,7 +60,7 @@ const TableOrder = () => {
             />
           </div>
 
-          {/* <h6 className="mt-4 mb-3">{`Sobre ${orders?.length === undefined ? 0 : orders.filter((order) => order.status === true).length} pedidos activos`}</h6> */}
+          <h6 className="mt-4 mb-3">{`Sobre 1 pedidos activos`}</h6>
 
           <div className="table-responsive" style={{ position: 'relative' }}>
             <table className="table align-middle gs-0 gy-4">

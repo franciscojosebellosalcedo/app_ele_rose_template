@@ -225,7 +225,30 @@ const FormSet: FC<Props> = ({ isOpenModal, paginateSets, setIsOpenModalSet, setS
 
     formik.setValues({...initialValues});
 
-  },[initialValues])
+  },[initialValues]);
+
+  const handleFormKeyPress = (e : KeyboardEvent) => {
+
+    if (e.key === 'Enter' && isLoader === false) {
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      sendForm();
+
+    }
+
+  };
+
+  useEffect(() => {
+
+    window.addEventListener("keydown", handleFormKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleFormKeyPress);
+    };
+
+  }, [isOpenModal, isLoader , formik]);
 
   return (
     <CModal

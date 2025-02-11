@@ -2,6 +2,30 @@ import { base } from "@uploadcare/upload-client"
 import { isProduction } from "./config";
 import { IDataInputSelect } from "./models/models";
 import imageCompression from 'browser-image-compression';
+import { CSSProperties } from "react";
+
+// get item register
+export const getRegisterById = <T,> (list : Array<T> , field : keyof T, value : any) : T | undefined =>{
+
+  return list.find( (item) => item[field] === value);
+
+}
+
+// styles element absolut button
+export const stylesElementAbsolute: CSSProperties = {
+  position: 'absolute',
+  top: 14,
+  right: -8,
+  height: 28,
+  width: 28,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '50%',
+  cursor: 'pointer',
+  backgroundColor: '#3498db',
+  zIndex: 99
+}
 
 // compress file image
 export const compressImage = async (file: any) => {

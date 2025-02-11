@@ -13,7 +13,7 @@ import {
 } from '@coreui/react'
 import clsx from 'clsx'
 import { useFormik } from 'formik'
-import { FC, useEffect, useState } from 'react'
+import { FC, ReactEventHandler, useEffect, useState } from 'react'
 import * as Yup from 'yup'
 import { ICategory, ICategoryModel, IResponseHttp, IUserModel } from '../../../../models/models'
 import { colorRedInfoInput, compressImage, convertFileToBase64, handleSubmitFileUploadcare } from '../../../../utils'
@@ -226,7 +226,31 @@ const FormCategory: FC<Props> = ({ isOpenModal, paginateCategories, setIsOpenMod
 
     formik.setValues({...initialValues});
 
-  },[initialValues])
+  },[initialValues]);
+
+
+  const handleFormKeyPress = (e : KeyboardEvent) => {
+
+    if (e.key === 'Enter' && isLoader === false) {
+
+      e.stopPropagation();
+      e.preventDefault();
+
+      sendForm();
+
+    }
+
+  };
+
+  useEffect(() => {
+
+    window.addEventListener("keydown", handleFormKeyPress);
+
+    return () => {
+      window.removeEventListener("keydown", handleFormKeyPress);
+    };
+
+  }, [isOpenModal, isLoader , formik]);
 
   return (
     <CModal

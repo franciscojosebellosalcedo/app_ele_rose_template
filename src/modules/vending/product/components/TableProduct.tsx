@@ -225,13 +225,13 @@ const TableProduct = () => {
               {productFound && productFound.length > 0 ? (
                 <tbody>
                   {productFound.map((product: IProductModel, index: number) => {
-                    return <ProductItem product={product} index={index} />
+                    return <ProductItem key= {product._id} product={product} index={index} />
                   })}
                 </tbody>
               ) : productList && productList.length > 0 ? (
                 <tbody>
                   {productList.map((product: IProductModel, index: number) => {
-                    return <ProductItem product={product} index={index} />
+                    return <ProductItem  key= {product._id}product={product} index={index} />
                   })}
                 </tbody>
               ) : (
